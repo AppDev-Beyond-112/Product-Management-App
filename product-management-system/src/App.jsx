@@ -1,7 +1,8 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
-import Login from "./Login";
-import Dashboard from "./Dashboard";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Login from "./Components/Login";
+import Dashboard from "./Components/Dashboard";
 import { useState } from "react";
 
 function App() {

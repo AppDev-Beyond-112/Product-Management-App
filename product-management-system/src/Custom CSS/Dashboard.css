@@ -1,0 +1,30 @@
+.custom-orange-outline-button {
+    background-color: transparent;
+    border: 2px solid orange;
+    color: orange;
+    transition: background-color 0.3s, color 0.3s;
+    box-shadow: none; 
+  }
+  
+  .custom-orange-outline-button:hover,
+  .custom-orange-outline-button:focus {
+    background-color: orange;
+    color: white;
+    border-color: orange;
+    box-shadow: none;
+  }
+  
+  .custom-orange-outline-button:focus-visible {
+    outline: none; 
+  }
+
+  .custom-brand {
+    color: orange;
+    
+  }
+  
+  .custom-brand:hover {
+    color: darkorange; 
+  }
+  
+  
