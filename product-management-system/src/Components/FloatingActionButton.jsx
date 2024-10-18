@@ -1,31 +1,31 @@
-import React from "react";
+import React, { useState } from "react";
+import FloatingForm from "./FloatingForm";
+import CardGrid from "./CardGrid"; 
+import '../Custom CSS/Fab.css'; 
 
-const FloatingActionButton = ({ onClick }) => {
+const FloatingActionButton = () => {
+  const [isFormVisible, setFormVisible] = useState(false);
+  const [cardsData, setCardsData] = useState([]); 
+
+  const toggleForm = () => {
+    setFormVisible(!isFormVisible);
+  };
+
+  const addCard = (newCard) => {
+    setCardsData([...cardsData, newCard]); 
+  };
+
   return (
-    <button
-      onClick={onClick}
-      style={styles.fab}
-    >
-      +
-    </button>
+    <>
+      <button onClick={toggleForm} className="fab">
+        +
+      </button>
+      {isFormVisible && (
+        <FloatingForm onClose={toggleForm} addCard={addCard} /> 
+      )}
+      <CardGrid cardsData={cardsData} />
+    </>
   );
-};
-
-const styles = {
-  fab: {
-    position: "fixed",
-    bottom: "20px",
-    right: "20px",
-    width: "60px",
-    height: "60px",
-    borderRadius: "50%",
-    backgroundColor: "orange",
-    color: "white",
-    border: "none",
-    fontSize: "24px",
-    boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
-    cursor: "pointer",
-  },
 };
 
 export default FloatingActionButton;
