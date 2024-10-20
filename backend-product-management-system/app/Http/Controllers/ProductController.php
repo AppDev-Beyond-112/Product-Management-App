@@ -38,15 +38,12 @@ class ProductController extends Controller
 
     public function update(Request $request, $barcode)
     {
-        // Find the product by barcode
         $product = Product::where('barcode', $barcode)->first();
     
-        // Check if the product exists
         if (!$product) {
             return response()->json(['message' => 'Product not found'], 404);
         }
     
-        // Validate the request
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -54,7 +51,6 @@ class ProductController extends Controller
             'category' => 'nullable|string|max:255',
         ]);
     
-        // Update product details
         $product->update($request->only(['name', 'description', 'stock', 'category']));
     
         return response()->json($product);
@@ -71,6 +67,6 @@ class ProductController extends Controller
 
         $product->delete();
 
-        return response()->json(['message' => 'Product deleted successfully']);
+        return response()->json(['message' => 'Product deleted successfully'], 200);
     }
 }

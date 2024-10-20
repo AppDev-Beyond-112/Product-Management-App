@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Row, Col, Spinner } from 'react-bootstrap'; 
 import CardView from './CardView'; 
 import FloatingForm from './FloatingForm'; 
+import FloatingActionButton from './FloatingActionButton'; // Import FAB
 import '../Custom CSS/CardGrid.css';
 
 function CardGrid({ searchTerm }) {
@@ -43,7 +44,12 @@ function CardGrid({ searchTerm }) {
 
   const addCard = (newCard) => {
     setProducts(prevProducts => [...prevProducts, newCard]);
-    fetchProducts(); 
+    setFormVisible(false); 
+    fetchProducts();
+  };
+
+  const handleDeleteItem = (barcode) => {
+    setProducts(prevProducts => prevProducts.filter(product => product.barcode !== barcode));
   };
 
   const filteredProducts = products.filter(product => {
@@ -58,7 +64,7 @@ function CardGrid({ searchTerm }) {
       productCategory.includes(lowerCaseSearchTerm)
     );
   });
-  
+
   if (loading) {
     return (
       <div className="text-center">
@@ -79,6 +85,7 @@ function CardGrid({ searchTerm }) {
           onClose={toggleForm} 
           addCard={addCard} 
           product={selectedProduct} 
+          onDelete={handleDeleteItem} 
         />
       )}
       <Row className="custom-gap">
@@ -101,6 +108,7 @@ function CardGrid({ searchTerm }) {
           </Col>
         )}
       </Row>
+      <FloatingActionButton onAdd={addCard} />
     </>
   );
 }

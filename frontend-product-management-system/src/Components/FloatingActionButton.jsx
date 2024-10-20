@@ -1,18 +1,17 @@
 import React, { useState } from "react";
 import FloatingForm from "./FloatingForm";
-import CardGrid from "./CardGrid"; 
 import '../Custom CSS/Fab.css'; 
 
-const FloatingActionButton = () => {
+const FloatingActionButton = ({ onAdd }) => { // Accept onAdd prop
   const [isFormVisible, setFormVisible] = useState(false);
-  const [cardsData, setCardsData] = useState([]); 
 
   const toggleForm = () => {
     setFormVisible(!isFormVisible);
   };
 
-  const addCard = (newCard) => {
-    setCardsData([...cardsData, newCard]); 
+  const handleAddCard = (newCard) => {
+    onAdd(newCard); // Call the parent function to add a card
+    setFormVisible(false); // Close the form after adding
   };
 
   return (
@@ -21,9 +20,8 @@ const FloatingActionButton = () => {
         +
       </button>
       {isFormVisible && (
-        <FloatingForm onClose={toggleForm} addCard={addCard} /> 
+        <FloatingForm onClose={toggleForm} addCard={handleAddCard} /> 
       )}
-      <CardGrid cardsData={cardsData} />
     </>
   );
 };
