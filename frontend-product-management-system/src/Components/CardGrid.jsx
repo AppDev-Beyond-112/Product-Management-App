@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Row, Col, Spinner } from 'react-bootstrap'; 
 import CardView from './CardView'; 
 import FloatingForm from './FloatingForm'; 
-import FloatingActionButton from './FloatingActionButton'; // Import FAB
+import FloatingActionButton from './FloatingActionButton'; 
 import '../Custom CSS/CardGrid.css';
 
 function CardGrid({ searchTerm }) {

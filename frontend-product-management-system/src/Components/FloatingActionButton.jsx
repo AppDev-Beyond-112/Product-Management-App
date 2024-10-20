@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import FloatingForm from "./FloatingForm";
 import '../Custom CSS/Fab.css'; 
 
-const FloatingActionButton = ({ onAdd }) => { // Accept onAdd prop
+const FloatingActionButton = ({ onAdd }) => { 
   const [isFormVisible, setFormVisible] = useState(false);
 
   const toggleForm = () => {
@@ -10,8 +10,8 @@ const FloatingActionButton = ({ onAdd }) => { // Accept onAdd prop
   };
 
   const handleAddCard = (newCard) => {
-    onAdd(newCard); // Call the parent function to add a card
-    setFormVisible(false); // Close the form after adding
+    onAdd(newCard); 
+    setFormVisible(false); 
   };
 
   return (
