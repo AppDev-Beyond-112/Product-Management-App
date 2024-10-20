@@ -31,7 +31,46 @@ class ProductController extends Controller
             'stock' => $request->stock,
             'category' => $request->category,
         ]);
+        
 
         return response()->json($product, 201); 
+    }
+
+    public function update(Request $request, $barcode)
+    {
+        // Find the product by barcode
+        $product = Product::where('barcode', $barcode)->first();
+    
+        // Check if the product exists
+        if (!$product) {
+            return response()->json(['message' => 'Product not found'], 404);
+        }
+    
+        // Validate the request
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'stock' => 'required|integer|min:0',
+            'category' => 'nullable|string|max:255',
+        ]);
+    
+        // Update product details
+        $product->update($request->only(['name', 'description', 'stock', 'category']));
+    
+        return response()->json($product);
+    }
+    
+
+    public function destroy($barcode)
+    {
+        $product = Product::where('barcode', $barcode)->first();
+
+        if (!$product) {
+            return response()->json(['message' => 'Product not found'], 404);
+        }
+
+        $product->delete();
+
+        return response()->json(['message' => 'Product deleted successfully']);
     }
 }

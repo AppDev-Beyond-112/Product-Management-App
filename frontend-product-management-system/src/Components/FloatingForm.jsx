@@ -7,7 +7,7 @@ const FloatingForm = ({ onClose, addCard, product }) => {
   const [itemName, setItemName] = useState(product ? product.name : '');
   const [quantity, setQuantity] = useState(product ? product.stock : '');
   const [description, setDescription] = useState(product ? product.description : '');
-  const [category, setCategory] = useState(product ? product.category : ''); // New state for category
+  const [category, setCategory] = useState(product ? product.category : ''); 
 
   function generateBarcode() {
     return 'BAR-' + Math.floor(Math.random() * 10000000).toString(); 
@@ -15,16 +15,24 @@ const FloatingForm = ({ onClose, addCard, product }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const newCard = { barcode, name: itemName, stock: Number(quantity), description, category }; // Include category
+    const newCard = { barcode, name: itemName, stock: Number(quantity), description, category }; 
 
     try {
-      const response = await fetch('http://localhost:8000/api/products', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newCard),
-      });
+      const response = product
+        ? await fetch(`http://localhost:8000/api/products/${barcode}`, { // PUT request for editing
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newCard),
+          })
+        : await fetch('http://localhost:8000/api/products', { // POST request for adding
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newCard),
+          });
 
       if (response.ok) {
         const data = await response.json();
@@ -35,7 +43,7 @@ const FloatingForm = ({ onClose, addCard, product }) => {
         console.error("Error:", errorData);
       }
     } catch (error) {
-      console.error("There was an error adding the item!", error);
+      console.error("There was an error saving the item!", error);
     }
   };
 
@@ -45,7 +53,7 @@ const FloatingForm = ({ onClose, addCard, product }) => {
       setItemName(product.name);
       setQuantity(product.stock);
       setDescription(product.description);
-      setCategory(product.category); // Set category if editing
+      setCategory(product.category); 
     }
   }, [product]);
 
@@ -86,12 +94,12 @@ const FloatingForm = ({ onClose, addCard, product }) => {
           onChange={(e) => setDescription(e.target.value)}
           className="floating-input"
         />
-        <label>Category:</label> {/* New label for category */}
+        <label>Category:</label> 
         <input
           type="text"
           placeholder="Category"
           value={category}
-          onChange={(e) => setCategory(e.target.value)} // Update state on change
+          onChange={(e) => setCategory(e.target.value)} 
           className="floating-input"
         />
         <button type="submit" className="floating-button outline-button">Save</button>
