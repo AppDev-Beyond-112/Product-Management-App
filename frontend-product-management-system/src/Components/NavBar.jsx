@@ -5,6 +5,7 @@ import Form from 'react-bootstrap/Form';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import { NavLink } from 'react-router-dom';
+import { FiLogOut } from 'react-icons/fi';  
 import '../Custom CSS/Dashboard.css'; 
 
 function NavBar({ onSearch }) { 
@@ -34,6 +35,9 @@ function NavBar({ onSearch }) {
           <Nav className="me-auto my-2 my-lg-0" style={{ maxHeight: '100px' }} navbarScroll>
             <Nav.Link as={NavLink} to="/dashboard">
               Dashboard
+            </Nav.Link>
+            <Nav.Link as={NavLink} to="/" className="d-flex align-items-center">
+              <FiLogOut className="me-1" /> Logout 
             </Nav.Link>
           </Nav>
           <Form className="d-flex">
