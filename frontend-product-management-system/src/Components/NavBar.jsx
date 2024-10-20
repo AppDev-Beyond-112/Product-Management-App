@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
@@ -6,12 +7,19 @@ import Navbar from 'react-bootstrap/Navbar';
 import { NavLink } from 'react-router-dom';
 import '../Custom CSS/Dashboard.css'; 
 
+function NavBar({ onSearch }) { 
+  const [searchInput, setSearchInput] = useState('');
 
-function NavBar() {
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchInput(value);
+    onSearch(value);
+  };
+
   return (
     <Navbar expand="lg" className="bg-body-tertiary">
       <Container fluid>
-      <Navbar.Brand href="#" className="custom-brand">
+        <Navbar.Brand href="#" className="custom-brand">
           <img
             src="/sister-store-logo.svg" 
             alt="Sister Store Logo"
@@ -23,11 +31,7 @@ function NavBar() {
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="navbarScroll" />
         <Navbar.Collapse id="navbarScroll">
-          <Nav
-            className="me-auto my-2 my-lg-0"
-            style={{ maxHeight: '100px' }}
-            navbarScroll
-          >
+          <Nav className="me-auto my-2 my-lg-0" style={{ maxHeight: '100px' }} navbarScroll>
             <Nav.Link as={NavLink} to="/dashboard">
               Dashboard
             </Nav.Link>
@@ -38,6 +42,8 @@ function NavBar() {
               placeholder="Search"
               className="me-2"
               aria-label="Search"
+              value={searchInput} 
+              onChange={handleSearchChange} 
             />
             <Button className="custom-orange-outline-button">Search</Button>
           </Form>
