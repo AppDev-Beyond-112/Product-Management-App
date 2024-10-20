@@ -14,7 +14,6 @@ function Dashboard() {
     <div>
       <NavBar onSearch={handleSearchChange} />
       <CardGrid searchTerm={searchTerm} />
-      <FloatingActionButton />
     </div>
   );
 }

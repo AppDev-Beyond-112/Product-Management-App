@@ -18,37 +18,34 @@ const FloatingForm = ({ onClose, addCard, product, onDelete }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newCard = { barcode, name: itemName, stock: Number(quantity), description, category };
-
-    try {
-      const response = product
-        ? await fetch(`http://localhost:8000/api/products/${barcode}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(newCard),
-          })
-        : await fetch('http://localhost:8000/api/products', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(newCard),
-          });
-
-      if (response.ok) {
-        const data = await response.json();
-        addCard(data);
-        onClose();
-      } else {
-        const errorData = await response.json();
-        console.error("Error:", errorData);
-      }
-    } catch (error) {
-      console.error("There was an error saving the item!", error);
+  
+    let response;
+    
+    if (product) {
+      console.log("Updating product:", newCard); 
+      response = await fetch(`http://localhost:8000/api/products/${barcode}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newCard),
+      });
+    } else {
+      console.log("Adding new product:", newCard);
+      response = await fetch('http://localhost:8000/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newCard),
+      });
     }
+    
+    const data = await response.json();
+    addCard({ ...newCard, ...data }); // Merge local state with API response
+    onClose();
   };
-
+  
   const handleDelete = async () => {
     try {
       const response = await fetch(`http://localhost:8000/api/products/${barcode}`, {
@@ -81,6 +78,12 @@ const FloatingForm = ({ onClose, addCard, product, onDelete }) => {
       setQuantity(product.stock);
       setDescription(product.description);
       setCategory(product.category);
+    } else {
+      setBarcode(generateBarcode());
+      setItemName('');
+      setQuantity('');
+      setDescription('');
+      setCategory('');
     }
   }, [product]);
 
@@ -132,7 +135,7 @@ const FloatingForm = ({ onClose, addCard, product, onDelete }) => {
           className="floating-input"
         />
         <button type="submit" className="floating-button outline-button">
-          Save
+          {product ? "Update" : "Add"}
         </button>
       </form>
 

@@ -37,15 +37,30 @@ function CardGrid({ searchTerm }) {
     setFormVisible(!isFormVisible);
   };
 
+  const toggleFormForNewProduct = () => {
+    setSelectedProduct(null);  
+    setFormVisible(true);      
+  };
+
   const handleCardClick = (product) => {
     setSelectedProduct(product);
     setFormVisible(true); 
   };
 
   const addCard = (newCard) => {
-    setProducts(prevProducts => [...prevProducts, newCard]);
-    setFormVisible(false); 
-    fetchProducts();
+    setProducts(prevProducts => {
+      const productIndex = prevProducts.findIndex(product => product.barcode === newCard.barcode);
+  
+      if (productIndex !== -1) {
+        const updatedProducts = [...prevProducts];
+        updatedProducts[productIndex] = newCard;
+        return updatedProducts;
+      } else {
+        return [...prevProducts, newCard];
+      }
+    });
+  
+    setFormVisible(false);
   };
 
   const handleDeleteItem = (barcode) => {
@@ -91,7 +106,7 @@ function CardGrid({ searchTerm }) {
       <Row className="custom-gap">
         {filteredProducts.length > 0 ? (
           filteredProducts.map((product) => (
-            <Col md={3} key={product.id} className="mb-4">
+            <Col md={3} key={product.barcode} className="mb-4"> 
               <CardView 
                 title={product.name} 
                 description={product.description} 
@@ -108,7 +123,7 @@ function CardGrid({ searchTerm }) {
           </Col>
         )}
       </Row>
-      <FloatingActionButton onAdd={addCard} />
+      <FloatingActionButton onAdd={toggleFormForNewProduct} />
     </>
   );
 }
