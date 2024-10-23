@@ -1,18 +1,10 @@
+// Dashboard.js
 import React, { useState } from 'react';
-import NavBar from './NavBar';
 import CardGrid from './CardGrid';
-import FloatingActionButton from "./FloatingActionButton";
 
-function Dashboard() {
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const handleSearchChange = (term) => {
-    setSearchTerm(term);
-  };
-
+function Dashboard({ searchTerm }) {
   return (
     <div>
-      <NavBar onSearch={handleSearchChange} />
       <CardGrid searchTerm={searchTerm} />
     </div>
   );

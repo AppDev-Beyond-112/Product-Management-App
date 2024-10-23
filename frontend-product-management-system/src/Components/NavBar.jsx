@@ -4,17 +4,42 @@ import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { FiLogOut } from 'react-icons/fi';  
 import '../Custom CSS/Dashboard.css'; 
 
-function NavBar({ onSearch }) { 
+function NavBar({ onSearch, setIsAuthenticated }) { 
   const [searchInput, setSearchInput] = useState('');
+  const navigate = useNavigate(); // for redirecting after logout
 
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchInput(value);
     onSearch(value);
+  };
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/logout', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.status === 'success') {
+        console.log(data.message); 
+        setIsAuthenticated(false); // Update authentication state
+        navigate('/login'); // Navigate to the login page
+      } else {
+        console.error(data.message); 
+      }
+    } catch (error) {
+      console.error('Error during logout:', error); 
+    }
   };
 
   return (
@@ -36,7 +61,7 @@ function NavBar({ onSearch }) {
             <Nav.Link as={NavLink} to="/dashboard">
               Dashboard
             </Nav.Link>
-            <Nav.Link as={NavLink} to="/" className="d-flex align-items-center">
+            <Nav.Link onClick={handleLogout} className="d-flex align-items-center">
               <FiLogOut className="me-1" /> Logout 
             </Nav.Link>
           </Nav>
@@ -58,3 +83,4 @@ function NavBar({ onSearch }) {
 }
 
 export default NavBar;
+

@@ -9,4 +9,16 @@
     box-shadow: 0 4px 10px rgba(255, 165, 0, 0.3);
   }
   
+  .custom-badge-light-red {
+    background-color: rgba(255, 4, 29, 0.647); 
+    color: white; 
+}
+
+
+  .custom-badge-light-green {
+    background-color: rgba(31, 167, 31, 0.808); 
+    color: white; 
+  }
+  
+  
   
