@@ -20,23 +20,28 @@ function CardView({ title, description, stock, barcode, category, onClick }) {
           <Card.Title style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>
             {title}
           </Card.Title>
-          <Badge pill bg="warning">
-            {category}
-          </Badge>
         </div>
         <Card.Text style={{ fontSize: '0.9rem', color: '#555' }}>
           {description}
         </Card.Text>
         
         <div className="d-flex justify-content-between align-items-center">
-          <Badge pill bg={stock > 0 ? 'success' : 'danger'}>
-            {stock > 0 ? 'In Stock' : 'Out of Stock'}
-          </Badge>
           <span style={{ fontSize: '0.8rem', color: '#777' }}>Barcode: {barcode}</span>
         </div>
+        
+        {/* New Category Display */}
+        <div style={{ fontSize: '0.8rem', color: '#777' }}>
+          Category: <strong>{category}</strong>
+        </div>
 
-        <div style={{ fontSize: '0.9rem', color: '#333' }}>
-          Stock Number: <strong>{stock}</strong>
+        <div className="d-flex justify-content-between align-items-center" style={{ marginTop: '8px' }}>
+          <Badge 
+            pill 
+            bg={stock > 0 ? 'custom-badge-light-green' : 'custom-badge-light-red'} 
+            className={stock > 0 ? 'custom-badge-light-green' : 'custom-badge-light-red'}
+          >
+            {stock > 0 ? `In Stock (${stock})` : `Out of Stock (${stock})`}
+          </Badge>
         </div>
       </Card.Body>
     </Card>

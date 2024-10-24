@@ -11,10 +11,12 @@ const Login = ({ setIsAuthenticated }) => {
     username: false,
     password: false,
   });
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false); // New state for button disabling
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setIsButtonDisabled(true); // Disable the button on click
 
     try {
       const response = await fetch("http://localhost:8000/api/login", {
@@ -31,11 +33,13 @@ const Login = ({ setIsAuthenticated }) => {
         setIsAuthenticated(true);
         navigate("/dashboard");
       } else {
-        setErrorMessage(data.message); 
+        setErrorMessage(data.message);
+        setIsButtonDisabled(false); // Re-enable the button on error
       }
     } catch (error) {
       console.error("Error during login:", error);
       setErrorMessage("An error occurred while logging in. Please try again.");
+      setIsButtonDisabled(false); // Re-enable the button on error
     }
   };
 
@@ -47,7 +51,10 @@ const Login = ({ setIsAuthenticated }) => {
           type="text"
           placeholder="Username"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={(e) => {
+            setUsername(e.target.value);
+            setErrorMessage(""); 
+          }}
           onFocus={() => setIsInputFocused((prev) => ({ ...prev, username: true }))}
           onBlur={() => setIsInputFocused((prev) => ({ ...prev, username: false }))}
           onMouseEnter={() => setIsInputFocused((prev) => ({ ...prev, username: true }))}
@@ -58,7 +65,10 @@ const Login = ({ setIsAuthenticated }) => {
           type="password"
           placeholder="Password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            setErrorMessage(""); 
+          }}
           onFocus={() => setIsInputFocused((prev) => ({ ...prev, password: true }))}
           onBlur={() => setIsInputFocused((prev) => ({ ...prev, password: false }))}
           onMouseEnter={() => setIsInputFocused((prev) => ({ ...prev, password: true }))}
@@ -70,6 +80,7 @@ const Login = ({ setIsAuthenticated }) => {
           className={`button ${isHovering ? 'buttonHover' : ''}`}
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
+          disabled={isButtonDisabled} // Disable button based on state
         >
           Login
         </button>

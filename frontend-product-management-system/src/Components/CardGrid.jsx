@@ -78,6 +78,8 @@ function CardGrid({ searchTerm }) {
       productDescription.includes(lowerCaseSearchTerm) ||
       productCategory.includes(lowerCaseSearchTerm)
     );
+  }).sort((a, b) => {
+    return b.stock - a.stock; 
   });
 
   if (loading) {
