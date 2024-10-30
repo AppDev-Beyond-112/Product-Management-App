@@ -32,7 +32,6 @@ class ProductController extends Controller
             'category' => $request->category,
         ]);
         
-
         return response()->json($product, 201); 
     }
 
@@ -56,7 +55,6 @@ class ProductController extends Controller
         return response()->json($product);
     }
     
-
     public function destroy($barcode)
     {
         $product = Product::where('barcode', $barcode)->first();

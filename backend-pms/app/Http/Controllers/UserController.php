@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 
 class UserController extends Controller
@@ -19,13 +18,13 @@ class UserController extends Controller
         $username = $request->input('username');
         $password = $request->input('password');
 
-        $user = DB::table('users')->where('username', $username)->first();
+        $user = DB::table('users')->where('name', $username)->first();
 
-        if ($user && Hash::check($password, $user->password)) {
+        if ($user && $user->password === $password) {
             $token = bin2hex(random_bytes(32));
 
             Session::put('user_token', $token);
-            Session::put('user_id', $user->id);  
+            Session::put('user_id', $user->id);
 
             return response()->json([
                 'status' => 'success',
@@ -36,7 +35,7 @@ class UserController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Incorrect username or password'
-            ]);
+            ], 401);
         }
     }
 
@@ -53,7 +52,7 @@ class UserController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'User is not authenticated'
-            ]);
+            ], 401);
         }
     }
 

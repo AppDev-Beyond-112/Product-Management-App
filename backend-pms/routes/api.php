@@ -5,15 +5,17 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
 
+// Middleware for authentication
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// User authentication routes
 Route::post('login', [UserController::class, 'login']);
 Route::get('is-authenticated', [UserController::class, 'isAuthenticated']);
 Route::post('logout', [UserController::class, 'logout']); 
 
-Route::get('products', [ProductController::class, 'index']);
-Route::post('products', [ProductController::class, 'store']);
-Route::put('/products/{barcode}', [ProductController::class, 'update']);
-Route::delete('/products/{barcode}', [ProductController::class, 'destroy']);
+// Product resource routes
+Route::resource('products', ProductController::class)->only([
+    'index', 'store', 'update', 'destroy'
+]);
