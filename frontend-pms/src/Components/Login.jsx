@@ -11,12 +11,12 @@ const Login = ({ setIsAuthenticated }) => {
     username: false,
     password: false,
   });
-  const [isButtonDisabled, setIsButtonDisabled] = useState(false); // New state for button disabling
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false); 
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setIsButtonDisabled(true); // Disable the button on click
+    setIsButtonDisabled(true); 
 
     try {
       const response = await fetch("http://localhost:8000/api/login", {
@@ -34,12 +34,12 @@ const Login = ({ setIsAuthenticated }) => {
         navigate("/dashboard");
       } else {
         setErrorMessage(data.message);
-        setIsButtonDisabled(false); // Re-enable the button on error
+        setIsButtonDisabled(false); 
       }
     } catch (error) {
       console.error("Error during login:", error);
       setErrorMessage("An error occurred while logging in. Please try again.");
-      setIsButtonDisabled(false); // Re-enable the button on error
+      setIsButtonDisabled(false); 
     }
   };
 
