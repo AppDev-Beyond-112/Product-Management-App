@@ -4,6 +4,7 @@ import DeleteConfirmation from "./DeleteConfirmation";
 import '../Custom CSS/FloatingForm.css';
 
 const FloatingForm = ({ onClose, addCard, product, onDelete }) => {
+  //states for identifying if it is an update or add
   const [barcode, setBarcode] = useState(product ? product.barcode : generateBarcode());
   const [itemName, setItemName] = useState(product ? product.name : '');
   const [quantity, setQuantity] = useState(product ? product.stock : '');
@@ -15,6 +16,7 @@ const FloatingForm = ({ onClose, addCard, product, onDelete }) => {
     return 'BAR-' + Math.floor(Math.random() * 10000000).toString();
   }
 
+  // Function for adding and updating products to the database
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newCard = { barcode, name: itemName, stock: Number(quantity), description, category };
@@ -42,10 +44,11 @@ const FloatingForm = ({ onClose, addCard, product, onDelete }) => {
     }
     
     const data = await response.json();
-    addCard({ ...newCard, ...data }); // Merge local state with API response
+    addCard({ ...newCard, ...data }); 
     onClose();
   };
   
+  // Function for deleting a product
   const handleDelete = async () => {
     try {
       const response = await fetch(`http://localhost:8000/api/products/${barcode}`, {
