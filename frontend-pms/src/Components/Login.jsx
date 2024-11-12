@@ -80,7 +80,7 @@ const Login = ({ setIsAuthenticated }) => {
           className={`button ${isHovering ? 'buttonHover' : ''}`}
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
-          disabled={isButtonDisabled} // Disable button based on state
+          disabled={isButtonDisabled} 
         >
           Login
         </button>
