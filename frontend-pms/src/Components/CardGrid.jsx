@@ -12,7 +12,7 @@ function CardGrid({ searchTerm }) {
   const [error, setError] = useState(null); 
   const [isFormVisible, setFormVisible] = useState(false); 
 
-  // Function to fetch products
+  // Function to getting the products
   const fetchProducts = async () => {
     setLoading(true); 
     try {
