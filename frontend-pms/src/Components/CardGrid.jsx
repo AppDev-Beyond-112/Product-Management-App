@@ -12,6 +12,7 @@ function CardGrid({ searchTerm }) {
   const [error, setError] = useState(null); 
   const [isFormVisible, setFormVisible] = useState(false); 
 
+  // Function to getting the products
   const fetchProducts = async () => {
     setLoading(true); 
     try {
@@ -33,20 +34,24 @@ function CardGrid({ searchTerm }) {
     fetchProducts();
   }, []); 
 
+  // Function for toggling the form
   const toggleForm = () => {
     setFormVisible(!isFormVisible);
   };
 
+  // Function for adding a new product
   const toggleFormForNewProduct = () => {
     setSelectedProduct(null);  
     setFormVisible(true);      
   };
 
+  // Function for handling card click to update a card and show the form
   const handleCardClick = (product) => {
     setSelectedProduct(product);
     setFormVisible(true); 
   };
 
+  // Function for adding a card when the floating action button is pressed
   const addCard = (newCard) => {
     setProducts(prevProducts => {
       const productIndex = prevProducts.findIndex(product => product.barcode === newCard.barcode);
@@ -63,10 +68,12 @@ function CardGrid({ searchTerm }) {
     setFormVisible(false);
   };
 
+  // Function for updating the cards on the view after deleting
   const handleDeleteItem = (barcode) => {
     setProducts(prevProducts => prevProducts.filter(product => product.barcode !== barcode));
   };
 
+  // Function for sorting the products where the stock is sorted in descending order
   const filteredProducts = products.filter(product => {
     const productName = product.name?.toLowerCase() || '';
     const productDescription = product.description?.toLowerCase() || '';
