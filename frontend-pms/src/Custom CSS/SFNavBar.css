@@ -1,0 +1,21 @@
+/* SFNavbar.css or global CSS */
+.navbar-text-white, .text-white {
+    color: #ffffff !important; /* Ensure the text is white */
+    font-style: bold;
+  }
+  
+  .navbar-text-white span {
+    color: white !important;
+  }
+
+  .badge.rounded-pill {
+    background-color: lightcoral; /* Change the background color */
+    color: white; /* Ensure the text is readable */
+    font-size: 14px; /* Adjust font size */
+    padding: 5px 10px; /* Add some padding for better spacing */
+    border: 1px solid rgb(255, 255, 255); /* Add a border for emphasis */
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2); /* Add a subtle shadow */
+  }
+  
+  
+  
