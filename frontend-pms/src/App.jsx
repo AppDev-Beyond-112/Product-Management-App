@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import NavBar from "./Components/NavBar"; 
-import Login from "./Components/Login"; 
-import Dashboard from "./Components/Dashboard";
+import Login from "./Pages/Login"; 
+import Dashboard from "./Pages/Dashboard";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
