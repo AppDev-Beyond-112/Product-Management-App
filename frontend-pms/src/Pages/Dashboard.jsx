@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import CardGrid from './CardGrid';
+import CardGrid from '../Components/CardGrid';
 
 function Dashboard({ searchTerm }) {
   return (
