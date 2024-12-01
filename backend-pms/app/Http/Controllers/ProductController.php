@@ -21,6 +21,7 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'stock' => 'required|integer|min:0',
+            'price' => 'required|numeric|min:0'
             'category' => 'nullable|string|max:255',
         ]);
 
@@ -29,6 +30,7 @@ class ProductController extends Controller
             'name' => $request->name,
             'description' => $request->description,
             'stock' => $request->stock,
+            'price' => $request->price,
             'category' => $request->category,
         ]);
         
@@ -47,10 +49,11 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'stock' => 'required|integer|min:0',
+            'price' => 'required|numeric|min:0',
             'category' => 'nullable|string|max:255',
         ]);
     
-        $product->update($request->only(['name', 'description', 'stock', 'category']));
+        $product->update($request->only(['name', 'description', 'stock', 'price', 'category']));
     
         return response()->json($product);
     }
