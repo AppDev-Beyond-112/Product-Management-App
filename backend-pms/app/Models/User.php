@@ -17,10 +17,13 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'email',
+        'address',
+        'contactNum',
         'password',
+        'role',
         'remember_token',
     ];
-
     /**
      * The attributes that should be hidden for arrays and JSON.
      *

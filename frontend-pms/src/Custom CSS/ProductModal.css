@@ -1,0 +1,30 @@
+.quantity-selector input[type="range"] {
+    cursor: pointer;
+    appearance: none;
+    background: #e9ecef;
+    border-radius: 5px;
+    outline: none;
+  }
+  
+  .quantity-selector input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background: #ffc107;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  }
+  
+  .quantity-selector input[type="range"]::-moz-range-thumb {
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background: #ffc107;
+    cursor: pointer;
+  }
+  
+  .quantity-selector input[type="number"] {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
