@@ -74,6 +74,7 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'address' => 'required|string|max:255',
+            'contactNum' => 'required|digits_between:10,12',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
         ]);
@@ -82,6 +83,7 @@ class UserController extends Controller
             'name' => $request->input('name'),
             'address' => $request->input('address'),
             'email' => $request->input('email'),
+            'contactNum' => $request->input('contactNum');
             'password' => Hash::make($request->input('password')),
             'role' => 'user',
             'created_at' => now(),
