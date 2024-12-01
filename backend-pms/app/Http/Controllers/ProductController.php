@@ -70,4 +70,38 @@ class ProductController extends Controller
 
         return response()->json(['message' => 'Product deleted successfully'], 200);
     }
+
+    public function addProductToCart(Request $request, $id)
+    {
+        $product = Product::find($id);
+
+        if (!$product) {
+            return response()->json(['message' => 'Product not found'], 404);
+        }
+
+       
+        if ($product->stock <= 0) {
+            return response()->json(['message' => 'Insufficient stock'], 400);
+        }
+
+        $cart = session()->get('cart', []);
+
+        if (isset($cart[$id])) {
+            if ($cart[$id]['quantity'] < $product->stock) {
+                $cart[$id]['quantity']++;
+            } else {
+                return response()->json(['message' => 'Not enough stock'], 400);
+            }
+        } else {
+            $cart[$id] = [
+                'name' => $product->name,
+                'quantity' => 1,
+                'price' => $product->price,
+            ];
+        }
+
+        session()->put('cart', $cart);
+
+        return response()->json(['message' => 'Product added to cart', 'cart' => $cart], 200);
+    }
 }
