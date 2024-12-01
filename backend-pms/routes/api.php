@@ -21,3 +21,6 @@ Route::resource('products', ProductController::class)->only([
 
 // Add product to cart route
 Route::post('products/{id}/add-to-cart', [ProductController::class, 'addProductToCart']);
+
+// User registration route
+Route::post('register', [UserController::class, 'register']);
