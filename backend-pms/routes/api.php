@@ -18,3 +18,6 @@ Route::post('logout', [UserController::class, 'logout']);
 Route::resource('products', ProductController::class)->only([
     'index', 'store', 'update', 'destroy'
 ]);
+
+// Add product to cart route
+Route::post('products/{id}/add-to-cart', [ProductController::class, 'addProductToCart']);
