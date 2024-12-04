@@ -20,7 +20,19 @@ Route::resource('products', ProductController::class)->only([
 ]);
 
 // Add product to cart route
-Route::post('products/{id}/add-to-cart', [ProductController::class, 'addProductToCart']);
+Route::post('products/{id}/add-to-cart', [UserController::class, 'addProductToCart']);
+
+// Remove product from cart route
+Route::delete('cart/{id}/remove', [UserController::class, 'removeProductFromCart']);
+
+// View cart route
+Route::get('cart', [UserController::class, 'viewCart']);
+
+// Checkout route
+Route::post('checkout', [UserController::class, 'checkout']); 
 
 // User registration route
 Route::post('register', [UserController::class, 'register']);
+
+// Route for finding a product by ID
+Route::get('products/{id}/find', [ProductController::class, 'find']);
