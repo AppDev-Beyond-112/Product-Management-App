@@ -3,7 +3,7 @@ import { Navbar, Container, Nav, Badge } from 'react-bootstrap';
 import { FaShoppingCart, FaSignOutAlt, FaStore, FaUser } from 'react-icons/fa'; // Import required icons
 import '../Custom CSS/SFNavbar.css';
 
-export default function SFNavbar({ cartCount }) {
+export default function SFNavbar({ cartCount, onCartClick }) {
   return (
     <Navbar expand="lg" style={{ backgroundColor: 'rgb(255, 165, 0)' }} variant="dark">
       <Container fluid>
@@ -25,7 +25,7 @@ export default function SFNavbar({ cartCount }) {
             </Nav.Item>
             {/* Shopping Cart */}
             <Nav.Item>
-              <Nav.Link href="#" className="text-white">
+              <Nav.Link onClick={onCartClick} className="text-white" style={{ cursor: 'pointer' }}>
                 <FaShoppingCart className="me-2" />
                 <Badge pill bg="">
                   {cartCount}
