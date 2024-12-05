@@ -12,100 +12,108 @@ class UserController extends Controller
 {
     public function viewCart()
     {
-        $cart = session()->get('cart', []);
-        $productDetails = Product::whereIn('id', array_keys($cart))->get();
+        $user = auth()->user(); // Assuming the user is authenticated
+        $cart = $user->cart;
     
-        $cartWithDetails = $productDetails->map(function ($product) use ($cart) {
+        if (!$cart) {
+            return response()->json(['message' => 'Cart is empty'], 200);
+        }
+    
+        $cartItems = $cart->items->map(function ($item) {
             return [
-                'id' => $product->id,
-                'name' => $product->name,
-                'quantity' => $cart[$product->id],
-                'price' => $product->price,
+                'product_id' => $item->product_id,
+                'name' => $item->product->name,
+                'quantity' => $item->quantity,
+                'price' => $item->product->price,
+                'total' => $item->quantity * $item->product->price,
             ];
         });
     
-        return response()->json(['cart' => $cartWithDetails]);
+        return response()->json(['cart' => $cartItems]);
     }
     
-    public function removeProductFromCart($id)
+    
+    public function removeProductFromCart($productId)
     {
-        $cart = session()->get('cart', []);
-        if (isset($cart[$id])) {
-            unset($cart[$id]);
-            session()->put('cart', $cart);
-            return response()->json(['message' => 'Product removed from cart']);
+        $user = auth()->user();
+        $cart = $user->cart;
+    
+        if (!$cart) {
+            return response()->json(['message' => 'Cart not found'], 404);
         }
     
-        return response()->json(['message' => 'Product not in cart'], 404);
+        $cartItem = $cart->items()->where('product_id', $productId)->first();
+    
+        if (!$cartItem) {
+            return response()->json(['message' => 'Product not in cart'], 404);
+        }
+    
+        $cartItem->delete();
+    
+        return response()->json(['message' => 'Product removed from cart']);
     }
+    
 
-    public function checkout(Request $request)
+    public function checkout()
     {
-       
-        $cart = session()->get('cart', []);
-
-        if (empty($cart)) {
+        $user = auth()->user();
+        $cart = $user->cart;
+    
+        if (!$cart || $cart->items->isEmpty()) {
             return response()->json(['message' => 'Cart is empty'], 400);
         }
     
-        foreach ($cart as $productId => $quantity) {
-
-            $product = Product::find($productId);
+        foreach ($cart->items as $item) {
+            $product = $item->product;
     
-            if (!$product) {
-                continue;
-            }
-    
-            // Ensure that stock is sufficient before updating the quantity
-            if ($product->stock < $quantity) {
+            if ($product->stock < $item->quantity) {
                 return response()->json(['message' => 'Not enough stock for product ' . $product->name], 400);
             }
     
-            // Reduce the stock based on the quantity in the cart
-            $product->stock -= $quantity;
+            $product->stock -= $item->quantity;
             $product->save();
         }
     
-        // Clear the cart after checkout
-        session()->forget('cart');
+        $cart->items()->delete(); // Clear the cart after checkout
     
-        return response()->json(['message' => 'Checkout successful, cart is cleared']);
+        return response()->json(['message' => 'Checkout successful']);
     }
+    
 
     
-    public function addProductToCart(Request $request, $id)
+    public function addProductToCart(Request $request, $productId)
     {
+        $user = auth()->user(); // Assuming the user is authenticated
         $quantity = $request->input('quantity', 1);
-        $product = Product::find($id);
     
-        $cart = session()->get('cart', []);
-    
+        $product = Product::find($productId);
         if (!$product) {
             return response()->json(['message' => 'Product not found'], 404);
         }
     
         if ($product->stock < $quantity) {
-            return response()->json(['message' => 'Requested quantity exceeds available stock'], 400);
+            return response()->json(['message' => 'Not enough stock'], 400);
         }
     
+        // Ensure the user has a cart
+        $cart = $user->cart()->firstOrCreate();
     
-        if (isset($cart[$id])) {
-            $newQuantity = $cart[$id] + $quantity;
+        // Check if the product is already in the cart
+        $cartItem = $cart->items()->where('product_id', $productId)->first();
     
-            if ($newQuantity > $product->stock) {
-                return response()->json(['message' => 'Not enough stock'], 400);
-            }
-    
-            $cart[$id] = $newQuantity; 
+        if ($cartItem) {
+            $cartItem->quantity += $quantity;
+            $cartItem->save();
         } else {
-         
-            $cart[$id] = $quantity;
+            $cart->items()->create([
+                'product_id' => $productId,
+                'quantity' => $quantity,
+            ]);
         }
     
-        session()->put('cart', $cart);
-    
-        return response()->json(['message' => 'Product added to cart', 'cart' => $cart], 200);
+        return response()->json(['message' => 'Product added to cart', 'cart' => $cart->items], 200);
     }
+    
 
     public function login(Request $request)
     {

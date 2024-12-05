@@ -24,12 +24,22 @@ class User extends Authenticatable
         'role',
         'remember_token',
     ];
+
     /**
      * The attributes that should be hidden for arrays and JSON.
      *
      * @var array<int, string>
      */
     protected $hidden = [
+        'password', // Added 'password' to be hidden for security
         'remember_token',
     ];
+
+    /**
+     * Relationship with the Cart model.
+     */
+    public function cart()
+    {
+        return $this->hasOne(Cart::class);
+    }
 }
