@@ -21,7 +21,7 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'stock' => 'required|integer|min:0',
-            'price' => 'required|numeric|min:0'
+            'price' => 'required|numeric|min:0',
             'category' => 'nullable|string|max:255',
         ]);
 
@@ -71,7 +71,7 @@ class ProductController extends Controller
         return response()->json(['message' => 'Product deleted successfully'], 200);
     }
 
-    public function addProductToCart(Request $request, $id)
+    public function find($id)
     {
         $product = Product::find($id);
 
@@ -79,29 +79,8 @@ class ProductController extends Controller
             return response()->json(['message' => 'Product not found'], 404);
         }
 
-       
-        if ($product->stock <= 0) {
-            return response()->json(['message' => 'Insufficient stock'], 400);
-        }
-
-        $cart = session()->get('cart', []);
-
-        if (isset($cart[$id])) {
-            if ($cart[$id]['quantity'] < $product->stock) {
-                $cart[$id]['quantity']++;
-            } else {
-                return response()->json(['message' => 'Not enough stock'], 400);
-            }
-        } else {
-            $cart[$id] = [
-                'name' => $product->name,
-                'quantity' => 1,
-                'price' => $product->price,
-            ];
-        }
-
-        session()->put('cart', $cart);
-
-        return response()->json(['message' => 'Product added to cart', 'cart' => $cart], 200);
+        return response()->json($product, 200);
     }
+
+    
 }
