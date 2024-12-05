@@ -22,7 +22,7 @@ class Cart extends Model
     /**
      * Relationship with the CartItem model.
      */
-    public function cartItems()
+    public function items()
     {
         return $this->hasMany(CartItem::class);
     }

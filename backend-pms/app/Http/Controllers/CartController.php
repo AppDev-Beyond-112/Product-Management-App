@@ -15,9 +15,9 @@ class CartController extends Controller
      */
     public function addToCart(Request $request, $product_id)
     {
-        $user = Auth::user();
+        $user = Auth::user(); // Ensure the user is authenticated
 
-        // Validate quantity
+        // Validate the request
         $request->validate([
             'quantity' => 'required|integer|min:1',
         ]);
@@ -30,19 +30,23 @@ class CartController extends Controller
             return response()->json(['message' => 'Product not found'], 404);
         }
 
+        // Check stock availability
         if ($product->stock < $quantity) {
             return response()->json(['message' => 'Not enough stock available'], 400);
         }
 
-        // Find or create the cart
+        // Find or create the user's cart
         $cart = Cart::firstOrCreate(['user_id' => $user->id]);
 
         // Check if the product already exists in the cart
-        $cartItem = CartItem::where('cart_id', $cart->id)->where('product_id', $product_id)->first();
+        $cartItem = CartItem::where('cart_id', $cart->id)
+            ->where('product_id', $product_id)
+            ->first();
 
         if ($cartItem) {
             $cartItem->quantity += $quantity;
 
+            // Ensure the total quantity does not exceed stock
             if ($cartItem->quantity > $product->stock) {
                 return response()->json(['message' => 'Exceeds available stock'], 400);
             }
@@ -56,7 +60,7 @@ class CartController extends Controller
             ]);
         }
 
-        return response()->json(['message' => 'Product added to cart']);
+        return response()->json(['message' => 'Product added to cart'], 200);
     }
 
     /**
@@ -66,13 +70,17 @@ class CartController extends Controller
     {
         $user = Auth::user();
 
+        // Find the user's cart
         $cart = Cart::where('user_id', $user->id)->first();
 
         if (!$cart) {
             return response()->json(['message' => 'Cart not found'], 404);
         }
 
-        $cartItem = CartItem::where('cart_id', $cart->id)->where('product_id', $product_id)->first();
+        // Find the cart item
+        $cartItem = CartItem::where('cart_id', $cart->id)
+            ->where('product_id', $product_id)
+            ->first();
 
         if (!$cartItem) {
             return response()->json(['message' => 'Product not in cart'], 404);
@@ -80,7 +88,7 @@ class CartController extends Controller
 
         $cartItem->delete();
 
-        return response()->json(['message' => 'Product removed from cart']);
+        return response()->json(['message' => 'Product removed from cart'], 200);
     }
 
     /**
@@ -90,13 +98,15 @@ class CartController extends Controller
     {
         $user = Auth::user();
 
-        $cart = Cart::where('user_id', $user->id)->with('cartItems.product')->first();
+        // Find the user's cart
+        $cart = Cart::where('user_id', $user->id)->with('items.product')->first();
 
-        if (!$cart || $cart->cartItems->isEmpty()) {
-            return response()->json(['message' => 'Cart is empty']);
+        if (!$cart || $cart->items->isEmpty()) {
+            return response()->json(['message' => 'Cart is empty'], 200);
         }
 
-        $cartDetails = $cart->cartItems->map(function ($item) {
+        // Map cart items for response
+        $cartDetails = $cart->items->map(function ($item) {
             return [
                 'product_id' => $item->product_id,
                 'product_name' => $item->product->name,
@@ -106,7 +116,7 @@ class CartController extends Controller
             ];
         });
 
-        return response()->json(['cart' => $cartDetails]);
+        return response()->json(['cart' => $cartDetails], 200);
     }
 
     /**
@@ -116,27 +126,28 @@ class CartController extends Controller
     {
         $user = Auth::user();
 
-        $cart = Cart::where('user_id', $user->id)->with('cartItems.product')->first();
+        // Find the user's cart
+        $cart = Cart::where('user_id', $user->id)->with('items.product')->first();
 
-        if (!$cart || $cart->cartItems->isEmpty()) {
+        if (!$cart || $cart->items->isEmpty()) {
             return response()->json(['message' => 'Cart is empty'], 400);
         }
 
-        foreach ($cart->cartItems as $item) {
+        // Deduct stock and validate quantities
+        foreach ($cart->items as $item) {
             $product = $item->product;
 
             if ($product->stock < $item->quantity) {
                 return response()->json(['message' => "Not enough stock for product {$product->name}"], 400);
             }
 
-            // Deduct stock
             $product->stock -= $item->quantity;
             $product->save();
         }
 
-        // Clear the cart
-        $cart->cartItems()->delete();
+        // Clear the cart after successful checkout
+        $cart->items()->delete();
 
-        return response()->json(['message' => 'Checkout successful']);
+        return response()->json(['message' => 'Checkout successful'], 200);
     }
 }
