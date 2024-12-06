@@ -1,33 +1,32 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CartController;
 
-// Authenticated user route
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
-// User authentication routes
-Route::post('login', [UserController::class, 'login']);
+// User-related Routes
+Route::post('login', [UserController::class, 'login'])->name('login');
 Route::get('is-authenticated', [UserController::class, 'isAuthenticated']);
-Route::post('logout', [UserController::class, 'logout']);
-Route::post('register', [UserController::class, 'register']);
+Route::post('logout', [UserController::class, 'logout'])->name('logout');
+Route::post('register', [UserController::class, 'register'])->withoutMiddleware(['auth']);
 
-// Cart routes within the UserController
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('cart', [UserController::class, 'viewCart']); // View cart contents
-    Route::post('cart/{productId}', [UserController::class, 'addProductToCart']); // Add product to cart
-    Route::delete('cart/{productId}', [UserController::class, 'removeProductFromCart']); // Remove product from cart
-    Route::post('cart/checkout', [UserController::class, 'checkout']); // Checkout cart
-});
 
-// Admin-specific product management routes
-Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
-    Route::resource('products', ProductController::class)->only([
-        'index', 'store', 'update', 'destroy'
-    ]);
-    Route::get('products/{id}/find', [ProductController::class, 'find']);
-});
+// Cart Routes (No authentication required)
+Route::post('cart/checkout', [CartController::class, 'checkout']);
+Route::post('cart/{productId}', [CartController::class, 'addToCart']); // Add product to cart
+Route::delete('cart/{productId}', [CartController::class, 'removeFromCart']); // Remove product from cart
+Route::get('cart', [CartController::class, 'viewCart']); // View cart details
+
+
+// Product Routes (No authentication required)
+Route::get('products', [ProductController::class, 'index'])->name('products.index');
+Route::post('products', [ProductController::class, 'store'])->name('products.store');
+Route::put('products/{id}', [ProductController::class, 'update'])->name('products.update');
+Route::delete('products/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
+Route::get('products/{id}/find', [ProductController::class, 'find'])->name('products.find');
+
+// Fallback for undefined routes
+Route::fallback(function () {
+    return response()->json(['message' => 'Resource not found'], 404);
+})->name('fallback');
