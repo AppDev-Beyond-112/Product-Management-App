@@ -83,4 +83,3 @@ function NavBar({ onSearch, setIsAuthenticated }) {
 }
 
 export default NavBar;
-

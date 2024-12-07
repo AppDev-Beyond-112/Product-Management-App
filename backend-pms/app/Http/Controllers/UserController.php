@@ -15,59 +15,61 @@ class UserController extends Controller
             'username' => 'required|string',
             'password' => 'required|string'
         ]);
-
+    
         $username = $request->input('username');
         $password = $request->input('password');
-
+    
+        // Fetch the user and ensure the role is included
         $user = DB::table('users')->where('name', $username)->first();
-
+    
         if ($user && Hash::check($password, $user->password)) {
-            $token = bin2hex(random_bytes(32));
-
+            $token = bin2hex(random_bytes(32)); // Generate a session token
+    
+            // Store the token in session or database
             Session::put('user_token', $token);
             Session::put('user_id', $user->id);
-
+    
             return response()->json([
                 'status' => 'success',
                 'message' => 'Login successful',
+                'role' => $user->role, // Return the role
                 'token' => $token
             ]);
-        } else {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Incorrect username or password'
-            ], 401);
         }
+    
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Incorrect username or password'
+        ], 401);
     }
+    
 
     public function isAuthenticated(Request $request)
     {
-        $token = Session::get('user_token');
-
+        $token = Session::get('user_token'); // Retrieve the token from the session
+    
         if ($token) {
-            return response()->json([
-                'status' => 'success',
-                'message' => 'User is authenticated'
-            ]);
+            // Retrieve the user's data from the session
+            $userId = Session::get('user_id');
+    
+            // Fetch the user's role from the database
+            $user = DB::table('users')->where('id', $userId)->first();
+    
+            if ($user) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'User is authenticated',
+                    'role' => $user->role // Include the role in the response
+                ]);
+            }
         }
-
+    
         return response()->json([
             'status' => 'error',
             'message' => 'User is not authenticated'
         ], 401);
     }
-
-    public function logout(Request $request)
-    {
-        Session::forget('user_token');
-        Session::forget('user_id');
-        Session::flush();
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Logged out successfully'
-        ]);
-    }
+    
 
     public function register(Request $request)
     {
@@ -101,5 +103,18 @@ class UserController extends Controller
             'status' => 'error',
             'message' => 'Registration failed'
         ], 500);
+    }
+
+
+    public function logout(Request $request)
+    {
+        // Destroy the user session
+        Session::forget('user_token');
+        Session::forget('user_id');
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Logged out successfully',
+        ]);
     }
 }

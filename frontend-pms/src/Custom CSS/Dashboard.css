@@ -1,30 +1,29 @@
-.custom-orange-outline-button {
-    background-color: transparent;
-    border: 2px solid orange;
-    color: orange;
-    transition: background-color 0.3s, color 0.3s;
-    box-shadow: none; 
-  }
-  
-  .custom-orange-outline-button:hover,
-  .custom-orange-outline-button:focus {
-    background-color: orange;
-    color: white;
-    border-color: orange;
-    box-shadow: none;
-  }
-  
-  .custom-orange-outline-button:focus-visible {
-    outline: none; 
-  }
+/* Custom styles for the orange outline button */
+button.custom-orange-outline-button {
+  background-color: transparent;
+  border: 2px solid orange;
+  color: orange;
+  transition: background-color 0.3s, color 0.3s;
+  box-shadow: none; 
+}
 
-  .custom-brand {
-    color: orange;
-    
-  }
-  
-  .custom-brand:hover {
-    color: darkorange; 
-  }
-  
-  
+button.custom-orange-outline-button:hover,
+button.custom-orange-outline-button:focus {
+  background-color: orange;
+  color: white;
+  border-color: orange;
+  box-shadow: none;
+}
+
+button.custom-orange-outline-button:focus-visible {
+  outline: none; 
+}
+
+/* Custom styles for the navbar brand */
+.navbar .custom-brand {
+  color: orange;
+}
+
+.navbar .custom-brand:hover {
+  color: darkorange; 
+}

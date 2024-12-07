@@ -6,133 +6,140 @@ import FloatingActionButton from './FloatingActionButton';
 import '../Custom CSS/CardGrid.css';
 
 function CardGrid({ searchTerm }) {
-  const [products, setProducts] = useState([]); 
-  const [loading, setLoading] = useState(true); 
-  const [selectedProduct, setSelectedProduct] = useState(null); 
-  const [error, setError] = useState(null); 
-  const [isFormVisible, setFormVisible] = useState(false); 
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [error, setError] = useState(null);
+  const [isFormVisible, setFormVisible] = useState(false);
 
-  // Function to getting the products
+  // Fetch products from the API
   const fetchProducts = async () => {
-    setLoading(true); 
+    setLoading(true);
     try {
-      const response = await fetch('http://localhost:8000/api/products'); 
+      const response = await fetch('http://localhost:8000/api/products');
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error('Failed to fetch products');
       }
       const data = await response.json();
-      setProducts(data);
+      setProducts(data || []);
     } catch (error) {
       console.error('Error fetching products:', error);
-      setError(error.message);
+      setError(error.message || 'An error occurred while fetching products.');
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchProducts();
-  }, []); 
+  }, []);
 
-  // Function for toggling the form
-  const toggleForm = () => {
-    setFormVisible(!isFormVisible);
+  // Dedicated close form handler
+  const closeForm = () => {
+    setFormVisible(false);
+    setSelectedProduct(null); // Reset the selected product
   };
 
-  // Function for adding a new product
-  const toggleFormForNewProduct = () => {
-    setSelectedProduct(null);  
-    setFormVisible(true);      
+  // Open form for adding a new product
+  const openNewProductForm = () => {
+    setSelectedProduct(null);
+    setFormVisible(true);
   };
 
-  // Function for handling card click to update a card and show the form
+  // Open form for editing a product
   const handleCardClick = (product) => {
     setSelectedProduct(product);
-    setFormVisible(true); 
+    setFormVisible(true);
   };
 
-  // Function for adding a card when the floating action button is pressed
-  const addCard = (newCard) => {
-    setProducts(prevProducts => {
-      const productIndex = prevProducts.findIndex(product => product.barcode === newCard.barcode);
-  
-      if (productIndex !== -1) {
+  // Add or update a product
+  const addOrUpdateProduct = (updatedProduct) => {
+    setProducts((prevProducts) => {
+      const existingProductIndex = prevProducts.findIndex(
+        (product) => product.barcode === updatedProduct.barcode
+      );
+
+      if (existingProductIndex !== -1) {
+        // Update the existing product
         const updatedProducts = [...prevProducts];
-        updatedProducts[productIndex] = newCard;
+        updatedProducts[existingProductIndex] = updatedProduct;
         return updatedProducts;
-      } else {
-        return [...prevProducts, newCard];
       }
+      // Add a new product
+      return [...prevProducts, updatedProduct];
     });
-  
-    setFormVisible(false);
+
+    closeForm();
   };
 
-  // Function for updating the cards on the view after deleting
-  const handleDeleteItem = (barcode) => {
-    setProducts(prevProducts => prevProducts.filter(product => product.barcode !== barcode));
-  };
-
-  // Function for sorting the products where the stock is sorted in descending order
-  const filteredProducts = products.filter(product => {
-    const productName = product.name?.toLowerCase() || '';
-    const productDescription = product.description?.toLowerCase() || '';
-    const productCategory = product.category?.toLowerCase() || '';
-    const lowerCaseSearchTerm = searchTerm.toLowerCase();
-
-    return (
-      productName.includes(lowerCaseSearchTerm) ||
-      productDescription.includes(lowerCaseSearchTerm) ||
-      productCategory.includes(lowerCaseSearchTerm)
+  // Delete a product
+  const deleteProduct = (barcode) => {
+    setProducts((prevProducts) =>
+      prevProducts.filter((product) => product.barcode !== barcode)
     );
-  }).sort((a, b) => {
-    return b.stock - a.stock; 
-  });
+    closeForm(); // Close the form after deletion
+  };
+
+  // Filter and sort products
+  const filteredProducts = products
+    .filter((product) => {
+      const productName = (product.name || '').toLowerCase();
+      const productDescription = (product.description || '').toLowerCase();
+      const productCategory = (product.category || '').toLowerCase();
+      const searchQuery = (searchTerm || '').toLowerCase();
+
+      return (
+        productName.includes(searchQuery) ||
+        productDescription.includes(searchQuery) ||
+        productCategory.includes(searchQuery)
+      );
+    })
+    .sort((a, b) => b.stock - a.stock);
 
   if (loading) {
     return (
       <div className="text-center">
         <Spinner animation="border" role="status" />
-        <span className="sr-only">Loading...</span>
+        <span>Loading products...</span>
       </div>
-    ); 
+    );
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return <div className="text-danger text-center">Error: {error}</div>;
   }
 
   return (
     <>
       {isFormVisible && (
-        <FloatingForm 
-          onClose={toggleForm} 
-          addCard={addCard} 
-          product={selectedProduct} 
-          onDelete={handleDeleteItem} 
+        <FloatingForm
+          onClose={closeForm} // Ensure consistent closing behavior
+          addCard={addOrUpdateProduct}
+          product={selectedProduct}
+          onDelete={deleteProduct}
         />
       )}
       <Row className="custom-gap">
         {filteredProducts.length > 0 ? (
           filteredProducts.map((product) => (
-            <Col md={3} key={product.barcode} className="mb-4"> 
-              <CardView 
-                title={product.name} 
-                description={product.description} 
-                stock={product.stock} 
-                barcode={product.barcode} 
-                category={product.category} 
-                onClick={() => handleCardClick(product)} 
+            <Col md={3} key={product.barcode} className="mb-4">
+              <CardView
+                title={product.name}
+                description={product.description}
+                stock={product.stock}
+                barcode={product.barcode}
+                category={product.category}
+                onClick={() => handleCardClick(product)}
               />
             </Col>
           ))
         ) : (
           <Col className="text-center">
-            <p>No products found.</p>
+            <p>No products found. Try adjusting your search.</p>
           </Col>
         )}
       </Row>
-      <FloatingActionButton onAdd={toggleFormForNewProduct} />
+      <FloatingActionButton onAdd={openNewProductForm} />
     </>
   );
 }
