@@ -9,7 +9,7 @@ use App\Http\Controllers\CartController;
 Route::post('login', [UserController::class, 'login'])->name('login');
 Route::get('is-authenticated', [UserController::class, 'isAuthenticated']);
 Route::post('logout', [UserController::class, 'logout'])->name('logout');
-Route::post('register', [UserController::class, 'register'])->withoutMiddleware(['auth']);
+Route::post('/register', [UserController::class, 'register'])->withoutMiddleware(['auth']);
 
 //Cart Routes <-- User lang gumagamit
 Route::post('cart/checkout/{userId}', [CartController::class, 'checkout']); // Remove all of the Cart Content by userId
