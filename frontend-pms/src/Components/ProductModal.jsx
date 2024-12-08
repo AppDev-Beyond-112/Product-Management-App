@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Button, Row, Col, Image } from 'react-bootstrap';
 import '../Custom CSS/ProductModal.css';
 
 export default function ProductModal({ show, onHide, product, addToCart }) {
   const [quantity, setQuantity] = useState(1);
+
+  useEffect(() => {
+    if (show) {
+      setQuantity(1); // Reset quantity to 1 when the modal is opened
+    }
+  }, [show]);
 
   const handleSliderChange = (e) => {
     setQuantity(+e.target.value);
@@ -43,8 +49,8 @@ export default function ProductModal({ show, onHide, product, addToCart }) {
               fluid
               className="rounded shadow-sm"
               style={{
-                width: "100px", 
-                height: "100px", 
+                width: "100px",
+                height: "100px",
                 objectFit: "cover",
                 margin: "0 auto",
               }}
@@ -63,23 +69,16 @@ export default function ProductModal({ show, onHide, product, addToCart }) {
               Product Details
             </h5>
 
-            {/* Product Description */}
             <p style={{ marginBottom: '15px', fontSize: '1rem', color: '#555' }}>
               {product.description}
             </p>
-
-            {/* Product Category */}
             <p style={{ fontSize: '1rem', color: '#555' }}>
               <span>Category: </span>
               {product.category || 'Uncategorized'}
             </p>
-
-            {/* Product Price */}
             <p style={{ fontSize: '1rem', color: '#555' }}>
               <span>Price: </span>${product.price}
             </p>
-
-            {/* Product Stock */}
             <p style={{ fontSize: '1rem', color: '#555' }}>
               <span>Stock: </span>
               {product.stock > 0 ? (
@@ -89,7 +88,6 @@ export default function ProductModal({ show, onHide, product, addToCart }) {
               )}
             </p>
 
-            {/* Quantity Selector */}
             <div className="quantity-selector mt-3 mb-4">
               <div className="d-flex align-items-center">
                 <input
@@ -123,7 +121,6 @@ export default function ProductModal({ show, onHide, product, addToCart }) {
               </div>
             </div>
 
-            {/* Add to Cart Button */}
             <Button
               variant="warning"
               className="mt-3 w-100 py-2 shadow-sm"

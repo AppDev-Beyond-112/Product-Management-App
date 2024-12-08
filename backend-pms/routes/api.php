@@ -11,10 +11,10 @@ Route::get('is-authenticated', [UserController::class, 'isAuthenticated']);
 Route::post('logout', [UserController::class, 'logout'])->name('logout');
 Route::post('register', [UserController::class, 'register'])->withoutMiddleware(['auth']);
 
-
 // Cart Routes (No authentication required)
-Route::post('cart/checkout', [CartController::class, 'checkout']);
+Route::post('cart/checkout/{userId}', [CartController::class, 'checkout']);
 Route::post('cart/{productId}', [CartController::class, 'addToCart']); // Add product to cart
+Route::put('cart/{productId}', [CartController::class, 'updateCart']); // Update product in cart
 Route::delete('cart/{productId}', [CartController::class, 'removeFromCart']); // Remove product from cart
 Route::get('cart/{userId}', [CartController::class, 'viewCart']); // View cart details by user_id
 

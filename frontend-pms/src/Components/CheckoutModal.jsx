@@ -1,29 +1,41 @@
-import React, { useState } from 'react';
-import { Modal, Button, Form, ListGroup } from 'react-bootstrap';
+import React, { useState } from "react";
+import { Modal, Button, Spinner, Alert } from "react-bootstrap";
 
-function CheckoutModal({ 
-  show, 
-  onHide, 
-  cartItems, 
-  deliveryFee = 50, 
-  onConfirmCheckout 
-}) {
-  const [paymentMethod, setPaymentMethod] = useState('');
+function CheckoutModal({ show, onHide, cartItems, onConfirmCheckout }) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const calculateCartTotal = () =>
-    cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+  const handleCheckout = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-  const handleConfirm = () => {
-    if (!paymentMethod) {
-      alert('Please select a payment method.');
-      return;
+      // Simulate checkout process or call your API here
+      const userId = localStorage.getItem("userId");
+      const response = await fetch(`http://localhost:8000/api/cart/checkout/${userId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userId, cart_items: cartItems }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Checkout failed. Please try again.");
+      }
+
+      const data = await response.json();
+
+      // Call the onConfirmCheckout callback after successful checkout
+      onConfirmCheckout(data.updatedCart || []);
+
+      // Close the modal
+      onHide();
+    } catch (err) {
+      console.error("Error during checkout:", err.message);
+      setError("Failed to complete checkout. Please try again.");
+    } finally {
+      setLoading(false);
     }
-    onConfirmCheckout(paymentMethod);
-    onHide(); // Close the modal after confirmation
   };
-
-  const totalCartPrice = calculateCartTotal();
-  const finalTotal = totalCartPrice + deliveryFee;
 
   return (
     <Modal show={show} onHide={onHide} centered>
@@ -31,64 +43,17 @@ function CheckoutModal({
         <Modal.Title>Checkout</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        {cartItems.length === 0 ? (
-          <p>Your cart is empty!</p>
-        ) : (
-          <>
-            <h5>Order Summary</h5>
-            <ListGroup>
-              {cartItems.map((item) => (
-                <ListGroup.Item key={item.id}>
-                  <div className="d-flex justify-content-between align-items-center">
-                    <span>{item.name} x {item.quantity}</span>
-                    <strong>₱{(item.price * item.quantity).toFixed(2)}</strong>
-                  </div>
-                </ListGroup.Item>
-              ))}
-              <ListGroup.Item>
-                <div className="d-flex justify-content-between align-items-center">
-                  <span>Delivery Fee</span>
-                  <strong>₱{deliveryFee.toFixed(2)}</strong>
-                </div>
-              </ListGroup.Item>
-              <ListGroup.Item>
-                <div className="d-flex justify-content-between align-items-center">
-                  <strong>Total</strong>
-                  <strong>₱{finalTotal.toFixed(2)}</strong>
-                </div>
-              </ListGroup.Item>
-            </ListGroup>
-
-            <Form className="mt-4">
-              <h5>Mode of Payment</h5>
-              <Form.Check
-                type="radio"
-                label="Cash on Delivery"
-                name="paymentMethod"
-                value="Cash on Delivery"
-                onChange={(e) => setPaymentMethod(e.target.value)}
-              />
-              <Form.Check
-                type="radio"
-                label="Credit/Debit Card"
-                name="paymentMethod"
-                value="Credit/Debit Card"
-                onChange={(e) => setPaymentMethod(e.target.value)}
-              />
-            </Form>
-          </>
-        )}
+        {error && <Alert variant="danger">{error}</Alert>}
+        <p>Are you sure you want to proceed with the checkout?</p>
       </Modal.Body>
-      {cartItems.length > 0 && (
-        <Modal.Footer>
-          <Button variant="secondary" onClick={onHide}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={handleConfirm}>
-            Confirm Checkout
-          </Button>
-        </Modal.Footer>
-      )}
+      <Modal.Footer>
+        <Button variant="secondary" onClick={onHide}>
+          Cancel
+        </Button>
+        <Button variant="success" onClick={handleCheckout} disabled={loading}>
+          {loading ? <Spinner animation="border" size="sm" /> : "Confirm"}
+        </Button>
+      </Modal.Footer>
     </Modal>
   );
 }
