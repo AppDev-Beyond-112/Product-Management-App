@@ -10,7 +10,7 @@ use App\Models\Product;
 class CartController extends Controller
 {
     /**
-     * Add a product to the cart based on user_id provided.
+     * Add a product to the cart based on user_id and quantity provided along with the productId for checking if it exists in the cart.
      */
     public function addToCart(Request $request, $productId)
     {
@@ -61,7 +61,7 @@ class CartController extends Controller
     }
 
     /**
-     * Update the quantity of a product in the cart.
+     * Update the quantity of a product in the cart also needs the user_id for identifying the cart.
      */
     public function updateCart(Request $request, $productId)
     {
@@ -107,7 +107,7 @@ class CartController extends Controller
     }
 
     /**
-     * Remove a product from the cart based on user_id.
+     * Remove a product from the cart based on user_id given on the body, on the url ang ineespecify don ay yung product id.
      */
     public function removeFromCart(Request $request, $productId)
     {
@@ -138,9 +138,6 @@ class CartController extends Controller
         return response()->json(['message' => 'Product removed from cart'], 200);
     }
 
-    /**
-     * View the cart details based on user_id.
-     */
 /**
  * View the cart details based on user_id.
  */
@@ -172,12 +169,8 @@ class CartController extends Controller
 
         return response()->json(['cart' => $cartDetails], 200);
     }
-
-    /**
-     * Checkout the cart based on user_id.
-     */
 /**
- * Checkout the cart based on user_id from the route.
+ * Checkout the cart based on user_id from the route pinaka summary nito ay nireremove lahat ng item sa cart.
  */
     public function checkout($userId)
     {
