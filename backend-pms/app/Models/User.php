@@ -29,6 +29,7 @@ class User extends Authenticatable
      */
     public function cart()
     {
+        //Cart has one user
         return $this->hasOne(Cart::class);
     }
 }

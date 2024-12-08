@@ -1,0 +1,9 @@
+.input-field {
+    width: 100%;
+    box-sizing: border-box; /* Ensure padding doesn't affect width */
+    margin: 0 auto; /* Center alignment for uniformity */
+  }
+  .container-fluid {
+    padding: 0 1rem; /* Adjust as needed */
+  }
+  

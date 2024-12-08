@@ -142,41 +142,44 @@ function Storefront({ setIsAuthenticated }) {
         )}
         {!loading && !error && filteredProducts.length > 0 && (
           <Row>
-            {filteredProducts.map((product) => (
-              <Col lg={3} md={4} sm={6} xs={12} key={product.id} className="mb-4">
-                <div
-                  className="card product-card"
-                  style={{ cursor: "pointer" }}
-                  onClick={() => {
-                    setSelectedProduct(product);
-                    setShowProductModal(true);
+          {filteredProducts.map((product) => (
+            <Col lg={3} md={4} sm={6} xs={12} key={product.id} className="mb-4">
+              <div
+                className="card product-card"
+                style={{ cursor: "pointer" }}
+                onClick={() => {
+                  setSelectedProduct(product);
+                  setShowProductModal(true);
+                }}
+              >
+                <img
+                  src="/itemplaceholder.svg"
+                  className="card-img-top product-img"
+                  alt={product.name}
+                  style={{
+                    width: "100px",
+                    height: "100px",
+                    objectFit: "cover",
+                    margin: "0 auto",
                   }}
-                >
-                  <img
-                    src="/itemplaceholder.svg"
-                    className="card-img-top product-img"
-                    alt={product.name}
-                    style={{
-                      width: "100px",
-                      height: "100px",
-                      objectFit: "cover",
-                      margin: "0 auto",
-                    }}
-                  />
-                  <div className="card-body">
-                    <h5 className="card-title">{product.name}</h5>
-                    <p className="card-text">{product.description}</p>
-                    <p className="card-text">
-                      <strong>₱{product.price}</strong>
-                    </p>
-                    <Badge bg={product.stock > 0 ? "success" : "danger"}>
-                      {product.stock > 0 ? `In Stock: ${product.stock}` : "Out of Stock"}
-                    </Badge>
-                  </div>
+                />
+                <div className="card-body">
+                  <h5 className="card-title">{product.name}</h5>
+                  <p className="card-category">
+                    <small className="text-muted">{product.category}</small>
+                  </p>
+                  <p className="card-text">{product.description}</p>
+                  <p className="card-text">
+                    <strong>₱{product.price}</strong>
+                  </p>
+                  <Badge bg={product.stock > 0 ? "success" : "danger"}>
+                    {product.stock > 0 ? `In Stock: ${product.stock}` : "Out of Stock"}
+                  </Badge>
                 </div>
-              </Col>
-            ))}
-          </Row>
+              </div>
+            </Col>
+          ))}
+        </Row>
         )}
       </div>
       <CartModal

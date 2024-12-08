@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Hash;
 
+//Consists of Login, IsAuthenticated, Register
 class UserController extends Controller
 {
     public function login(Request $request)
@@ -22,6 +23,7 @@ class UserController extends Controller
         // Fetch the user and ensure the role is included
         $user = DB::table('users')->where('name', $username)->first();
     
+        //if user exists and yung hashed given password is equal to the password na nasa database
         if ($user && Hash::check($password, $user->password)) {
             $token = bin2hex(random_bytes(32)); // Generate a session token
     
@@ -61,7 +63,7 @@ class UserController extends Controller
                 return response()->json([
                     'status' => 'success',
                     'message' => 'User is authenticated',
-                    'role' => $user->role // Include the role in the response
+                    'role' => $user->role // Include the role in the response for the frontend to know which page to navigate
                 ]);
             }
         }
@@ -75,6 +77,7 @@ class UserController extends Controller
 
     public function register(Request $request)
     {
+        //validate the gotten inputs
         $request->validate([
             'name' => 'required|string|max:255',
             'address' => 'required|string|max:255',
@@ -83,6 +86,7 @@ class UserController extends Controller
             'password' => 'required|string|min:8|confirmed',
         ]);
 
+        //put on the table
         $user = DB::table('users')->insert([
             'name' => $request->input('name'),
             'address' => $request->input('address'),

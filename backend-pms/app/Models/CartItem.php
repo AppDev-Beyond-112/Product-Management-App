@@ -13,11 +13,13 @@ class CartItem extends Model
 
     public function cart()
     {
+        //Item belong to a Cart
         return $this->belongsTo(Cart::class);
     }
 
     public function product()
     {
+        //This item exists in the products
         return $this->belongsTo(Product::class);
     }
 }
