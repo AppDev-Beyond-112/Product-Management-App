@@ -13,10 +13,11 @@ class ProductFactory extends Factory
     {
         return [
             'barcode' => 'BAR-' . $this->faker->unique()->numberBetween(1, 1000000),
-            'name' => $this->faker->word(),
-            'description' => $this->faker->sentence(),
-            'stock' => $this->faker->numberBetween(0, 100),
-            'category' => $this->faker->word(),
+            'name' => $this->faker->word,
+            'description' => $this->faker->sentence,
+            'stock' => $this->faker->numberBetween(10, 200),
+            'price' => $this->faker->randomFloat(2, 5, 100), 
+            'category' => $this->faker->word,
         ];
     }
 }
