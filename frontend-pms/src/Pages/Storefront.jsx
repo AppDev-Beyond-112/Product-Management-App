@@ -80,11 +80,19 @@ function Storefront({ setIsAuthenticated }) {
     fetchProducts(); // Refresh the product list after stock update
   };
 
-  const filteredProducts = products.filter((product) => {
+  const filteredProducts = products
+  .filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "" || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
+  })
+  .sort((a, b) => {
+    // Sort by stock in descending order, with out-of-stock products last
+    if (a.stock === 0) return 1; // Move out-of-stock products down
+    if (b.stock === 0) return -1; // Keep in-stock products up
+    return b.stock - a.stock; // Descending order of stock
   });
+
 
   const uniqueCategories = [...new Set(products.map((product) => product.category))];
   const cartCount = cartItems.length;

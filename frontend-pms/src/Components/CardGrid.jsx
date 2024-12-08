@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Row, Col, Spinner } from 'react-bootstrap'; 
-import CardView from './CardView'; 
-import FloatingForm from './FloatingForm'; 
-import FloatingActionButton from './FloatingActionButton'; 
+import { Row, Col, Spinner, Form } from 'react-bootstrap';
+import CardView from './CardView';
+import FloatingForm from './FloatingForm';
+import FloatingActionButton from './FloatingActionButton';
 import '../Custom CSS/CardGrid.css';
 
 function CardGrid({ searchTerm }) {
@@ -11,6 +11,10 @@ function CardGrid({ searchTerm }) {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [error, setError] = useState(null);
   const [isFormVisible, setFormVisible] = useState(false);
+
+  // New states for filtering and sorting
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [sortOption, setSortOption] = useState('stock');
 
   // Fetch products from the API
   const fetchProducts = async () => {
@@ -34,23 +38,23 @@ function CardGrid({ searchTerm }) {
     fetchProducts();
   }, []);
 
-  // Dedicated close form handler
-  const closeForm = () => {
-    setFormVisible(false);
-    setSelectedProduct(null); // Reset the selected product
-  };
-
-  // Open form for adding a new product
-  const openNewProductForm = () => {
-    setSelectedProduct(null);
-    setFormVisible(true);
-  };
-
-  // Open form for editing a product
-  const handleCardClick = (product) => {
-    setSelectedProduct(product);
-    setFormVisible(true);
-  };
+  // Handle filtering and sorting
+  const filteredProducts = products
+    .filter((product) => {
+      const searchQuery = (searchTerm || '').toLowerCase();
+      const productCategory = (product.category || '').toLowerCase();
+      const matchesSearch =
+        product.name.toLowerCase().includes(searchQuery) ||
+        product.description.toLowerCase().includes(searchQuery);
+      const matchesCategory =
+        !selectedCategory || productCategory === selectedCategory.toLowerCase();
+      return matchesSearch && matchesCategory;
+    })
+    .sort((a, b) => {
+      if (sortOption === 'price') return b.price - a.price; // Descending price
+      if (sortOption === 'stock') return b.stock - a.stock; // Descending stock
+      return 0;
+    });
 
   // Add or update a product
   const addOrUpdateProduct = (updatedProduct) => {
@@ -68,8 +72,8 @@ function CardGrid({ searchTerm }) {
       // Add a new product
       return [...prevProducts, updatedProduct];
     });
-
-    closeForm();
+    setFormVisible(false); // Close the form after adding or updating
+    setSelectedProduct(null); // Reset selected product
   };
 
   // Delete a product
@@ -77,24 +81,9 @@ function CardGrid({ searchTerm }) {
     setProducts((prevProducts) =>
       prevProducts.filter((product) => product.barcode !== barcode)
     );
-    closeForm(); // Close the form after deletion
+    setFormVisible(false); // Close the form after deletion
+    setSelectedProduct(null); // Reset selected product
   };
-
-  // Filter and sort products
-  const filteredProducts = products
-    .filter((product) => {
-      const productName = (product.name || '').toLowerCase();
-      const productDescription = (product.description || '').toLowerCase();
-      const productCategory = (product.category || '').toLowerCase();
-      const searchQuery = (searchTerm || '').toLowerCase();
-
-      return (
-        productName.includes(searchQuery) ||
-        productDescription.includes(searchQuery) ||
-        productCategory.includes(searchQuery)
-      );
-    })
-    .sort((a, b) => b.stock - a.stock);
 
   if (loading) {
     return (
@@ -113,12 +102,40 @@ function CardGrid({ searchTerm }) {
     <>
       {isFormVisible && (
         <FloatingForm
-          onClose={closeForm} // Ensure consistent closing behavior
+          onClose={() => setFormVisible(false)}
           addCard={addOrUpdateProduct}
           product={selectedProduct}
           onDelete={deleteProduct}
         />
       )}
+      <div className="filters mb-3">
+        <Row>
+          <Col md={4}>
+            <Form.Select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+            >
+              <option value="">All Categories</option>
+              {Array.from(new Set(products.map((p) => p.category))).map(
+                (category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                )
+              )}
+            </Form.Select>
+          </Col>
+          <Col md={4}>
+            <Form.Select
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
+            >
+              <option value="stock">Sort by Stock</option>
+              <option value="price">Sort by Price</option>
+            </Form.Select>
+          </Col>
+        </Row>
+      </div>
       <Row className="custom-gap">
         {filteredProducts.length > 0 ? (
           filteredProducts.map((product) => (
@@ -127,19 +144,23 @@ function CardGrid({ searchTerm }) {
                 title={product.name}
                 description={product.description}
                 stock={product.stock}
+                price={product.price}
                 barcode={product.barcode}
                 category={product.category}
-                onClick={() => handleCardClick(product)}
+                onClick={() => {
+                  setSelectedProduct(product);
+                  setFormVisible(true);
+                }}
               />
             </Col>
           ))
         ) : (
           <Col className="text-center">
-            <p>No products found. Try adjusting your search.</p>
+            <p>No products found. Try adjusting your search or filters.</p>
           </Col>
         )}
       </Row>
-      <FloatingActionButton onAdd={openNewProductForm} />
+      <FloatingActionButton onAdd={() => setFormVisible(true)} />
     </>
   );
 }

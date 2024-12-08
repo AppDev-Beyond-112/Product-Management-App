@@ -25,7 +25,7 @@ const Login = ({ setIsAuthenticated }) => {
   });
 
   const [registrationErrors, setRegistrationErrors] = useState({});
-  const [passwordStrength, setPasswordStrength] = useState("");
+  const [passwordStrength, setPasswordStrength] = useState({ label: "", color: "" });
 
   const navigate = useNavigate();
 
@@ -41,10 +41,6 @@ const Login = ({ setIsAuthenticated }) => {
     setRegistrationData((prev) => ({ ...prev, password: value }));
     const strength = evaluatePasswordStrength(value);
     setPasswordStrength(strength);
-  };
-
-  const handleFieldFocus = (field) => {
-    setRegistrationErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
   // Handle login form submission
@@ -66,8 +62,7 @@ const Login = ({ setIsAuthenticated }) => {
       if (data.status === "success") {
         localStorage.setItem("authToken", data.token);
         localStorage.setItem("userId", data.user_id); // Store userId
-        localStorage.setItem("username", username); // Store username in localStorage
-        console.log('User ID:', localStorage.userId); // Check if userId is being retrieved correctly
+        localStorage.setItem("username", username); // Store username
 
         setIsAuthenticated(true);
 
@@ -92,7 +87,7 @@ const Login = ({ setIsAuthenticated }) => {
     event.preventDefault();
     const { name, email, password, confirmPassword, contact } = registrationData;
     const errors = {};
-
+  
     // Validate registration form
     if (!name.trim()) errors.name = "Name is required.";
     if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email))
@@ -103,12 +98,12 @@ const Login = ({ setIsAuthenticated }) => {
       errors.password = "Password must have at least 8 characters, 1 uppercase letter, and 1 number.";
     if (password !== confirmPassword)
       errors.confirmPassword = "Passwords do not match.";
-
+  
     if (Object.keys(errors).length > 0) {
       setRegistrationErrors(errors);
       return;
     }
-
+  
     try {
       setIsSubmitting(true);
       const response = await fetch("http://localhost:8000/api/register", {
@@ -116,10 +111,16 @@ const Login = ({ setIsAuthenticated }) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, email, password, contact }),
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          password_confirmation: confirmPassword, // Laravel requires "password_confirmation"
+          contactNum: contact, // Use the correct field name for the backend
+        }),
       });
       const data = await response.json();
-
+  
       if (data.status === "success") {
         alert("Registration successful! Please log in.");
         setIsRegistering(false);
@@ -132,24 +133,25 @@ const Login = ({ setIsAuthenticated }) => {
       setIsSubmitting(false);
     }
   };
+  
 
   const handleFormSwitch = () => {
     setIsRegistering(!isRegistering);
     setErrorMessage("");
     setRegistrationErrors({});
-    setPasswordStrength("");
+    setPasswordStrength({ label: "", color: "" });
   };
 
   return (
     <div className="d-flex justify-content-center align-items-center vh-100 bg-light">
-      <Card style={{ width: "32rem", fontFamily: "Montserrat", borderRadius: "15px" }} className="shadow-sm">
+      <Card style={{ width: "30rem", borderRadius: "15px" }} className="shadow-lg">
         <Card.Body>
           <div className="text-center mb-4">
-            <img src="/sister-store-logo-2.svg" alt="Sister Store" style={{ width: "150px" }} />
+            <img src="/sister-store-logo-2.svg" alt="Sister Store" style={{ width: "120px" }} />
           </div>
           {!isRegistering ? (
             <Form onSubmit={handleLoginSubmit}>
-              <h4 className="text-center mb-4" style={{ color: "darkorange" }}>Login</h4>
+              <h4 className="text-center mb-4" style={{ color: "orange" }}>Login</h4>
               <Form.Group controlId="loginUsername" className="mb-3">
                 <Form.Label><FaUser /> Username</Form.Label>
                 <InputGroup>
@@ -159,7 +161,6 @@ const Login = ({ setIsAuthenticated }) => {
                     placeholder="Enter username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    onFocus={() => handleFieldFocus("username")} // Call handleFieldFocus when field gains focus
                     required
                   />
                 </InputGroup>
@@ -171,35 +172,57 @@ const Login = ({ setIsAuthenticated }) => {
                   placeholder="Enter password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  onFocus={() => handleFieldFocus("password")} // Call handleFieldFocus when field gains focus
                   required
                 />
               </Form.Group>
               {errorMessage && <div className="text-danger mb-3">{errorMessage}</div>}
-              <Button type="submit" className="w-100" style={{ backgroundColor: "darkorange" }} disabled={isSubmitting}>
+              <Button
+                type="submit"
+                className="w-100 mb-3"
+                style={{ backgroundColor: "darkorange", border: "none" }}
+                disabled={isSubmitting}
+              >
                 {isSubmitting ? "Logging in..." : "Login"}
               </Button>
-              <Button variant="link" onClick={handleFormSwitch} className="mt-3">
-                Don’t have an account? Register here.
-              </Button>
+              <div className="text-center">
+                <Button
+                  variant="link"
+                  onClick={handleFormSwitch}
+                  style={{ color: "orange", textDecoration: "none" }}
+                >
+                  Don’t have an account? Register here.
+                </Button>
+              </div>
             </Form>
           ) : (
             <Form onSubmit={handleRegisterSubmit}>
-              <h4 className="text-center mb-4" style={{ color: "darkorange" }}>Register</h4>
-              {["name", "email", "contact"].map((field, idx) => (
-                <Form.Group key={idx} controlId={`register${field}`} className="mb-3">
-                  <Form.Label>{field === "contact" ? <FaPhoneAlt /> : field === "email" ? <FaEnvelope /> : <FaUser />} {field.charAt(0).toUpperCase() + field.slice(1)}</Form.Label>
-                  <Form.Control
-                    type={field === "email" ? "email" : "text"}
-                    placeholder={`Enter ${field}`}
-                    value={registrationData[field]}
-                    onChange={(e) => setRegistrationData((prev) => ({ ...prev, [field]: e.target.value }))}
-                    isInvalid={!!registrationErrors[field]}
-                    onFocus={() => handleFieldFocus(field)} // Call handleFieldFocus for registration fields as well
-                  />
-                  <Form.Control.Feedback type="invalid">{registrationErrors[field]}</Form.Control.Feedback>
-                </Form.Group>
-              ))}
+              <h4 className="text-center mb-4" style={{ color: "orange" }}>Register</h4>
+              <Form.Group controlId="registerName" className="mb-3">
+                <Form.Label><FaUser /> Name</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter name"
+                  value={registrationData.name}
+                  onChange={(e) => setRegistrationData({ ...registrationData, name: e.target.value })}
+                  isInvalid={!!registrationErrors.name}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {registrationErrors.name}
+                </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group controlId="registerEmail" className="mb-3">
+                <Form.Label><FaEnvelope /> Email</Form.Label>
+                <Form.Control
+                  type="email"
+                  placeholder="Enter email"
+                  value={registrationData.email}
+                  onChange={(e) => setRegistrationData({ ...registrationData, email: e.target.value })}
+                  isInvalid={!!registrationErrors.email}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {registrationErrors.email}
+                </Form.Control.Feedback>
+              </Form.Group>
               <Form.Group controlId="registerPassword" className="mb-3">
                 <Form.Label><FaLock /> Password</Form.Label>
                 <Form.Control
@@ -208,12 +231,16 @@ const Login = ({ setIsAuthenticated }) => {
                   value={registrationData.password}
                   onChange={(e) => handlePasswordChange(e.target.value)}
                   isInvalid={!!registrationErrors.password}
-                  onFocus={() => handleFieldFocus("password")} // Call handleFieldFocus for password field
                 />
-                <div style={{ fontSize: "1.1em", color: passwordStrength.color, textAlign: "left", marginTop: "5px" }}>
-                  {passwordStrength.label}
+                <div
+                  className="mt-2"
+                  style={{ fontSize: "0.9em", color: passwordStrength.color }}
+                >
+                  Password strength: {passwordStrength.label}
                 </div>
-                <Form.Control.Feedback type="invalid">{registrationErrors.password}</Form.Control.Feedback>
+                <Form.Control.Feedback type="invalid">
+                  {registrationErrors.password}
+                </Form.Control.Feedback>
               </Form.Group>
               <Form.Group controlId="registerConfirmPassword" className="mb-3">
                 <Form.Label><FaLock /> Confirm Password</Form.Label>
@@ -221,19 +248,45 @@ const Login = ({ setIsAuthenticated }) => {
                   type="password"
                   placeholder="Confirm password"
                   value={registrationData.confirmPassword}
-                  onChange={(e) => setRegistrationData((prev) => ({ ...prev, confirmPassword: e.target.value }))}
+                  onChange={(e) =>
+                    setRegistrationData({ ...registrationData, confirmPassword: e.target.value })
+                  }
                   isInvalid={!!registrationErrors.confirmPassword}
-                  onFocus={() => handleFieldFocus("confirmPassword")} // Call handleFieldFocus for confirm password field
                 />
-                <Form.Control.Feedback type="invalid">{registrationErrors.confirmPassword}</Form.Control.Feedback>
+                <Form.Control.Feedback type="invalid">
+                  {registrationErrors.confirmPassword}
+                </Form.Control.Feedback>
               </Form.Group>
-              {errorMessage && <div className="text-danger mb-3">{errorMessage}</div>}
-              <Button type="submit" className="w-100" style={{ backgroundColor: "darkorange" }} disabled={isSubmitting}>
+              <Form.Group controlId="registerContact" className="mb-3">
+                <Form.Label><FaPhoneAlt /> Contact</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter contact number"
+                  value={registrationData.contact}
+                  onChange={(e) => setRegistrationData({ ...registrationData, contact: e.target.value })}
+                  isInvalid={!!registrationErrors.contact}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {registrationErrors.contact}
+                </Form.Control.Feedback>
+              </Form.Group>
+              <Button
+                type="submit"
+                className="w-100 mb-3"
+                style={{ backgroundColor: "darkorange", border: "none" }}
+                disabled={isSubmitting}
+              >
                 {isSubmitting ? "Registering..." : "Register"}
               </Button>
-              <Button variant="link" onClick={handleFormSwitch} className="mt-3">
-                Already have an account? Login here.
-              </Button>
+              <div className="text-center">
+                <Button
+                  variant="link"
+                  onClick={handleFormSwitch}
+                  style={{ color: "orange", textDecoration: "none" }}
+                >
+                  Already have an account? Login here.
+                </Button>
+              </div>
             </Form>
           )}
         </Card.Body>
