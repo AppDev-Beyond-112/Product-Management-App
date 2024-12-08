@@ -12,5 +12,6 @@ class Product extends Model
     protected $table = 'products';
     public $timestamps = false;
 
-    protected $fillable = ['barcode', 'name', 'description', 'stock', 'category'];
+    protected $fillable = ['barcode', 'name', 'description', 'stock', 'price', 'category'];
+
 }

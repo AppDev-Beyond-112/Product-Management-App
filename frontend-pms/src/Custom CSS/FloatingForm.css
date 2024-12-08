@@ -1,40 +1,69 @@
+/* Centered Floating Form with Top and Bottom Margins */
 .floating-form {
   position: fixed;
-  bottom: 80px;
-  right: 20px;
-  width: 300px;
+  top: 10%;
+  bottom: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50%;
   padding: 20px;
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 255, 255, 0.95);
   border-radius: 15px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1100;
+  overflow-y: auto;
+}
+
+/* Backdrop Blur */
+.floating-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(5px);
   z-index: 1000;
 }
 
+/* Header Section */
 .form-header {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
   margin-bottom: 15px;
+  gap: 10px; /* Space between delete and close icons */
 }
 
+/* Icons */
 .close-icon,
 .delete-icon {
   cursor: pointer;
   font-size: 20px;
   color: #333;
-  margin-left: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .close-icon:hover,
 .delete-icon:hover {
+  background-color: rgba(255, 165, 0, 0.1);
   color: orange;
 }
 
+/* Input Fields */
 .floating-input {
   width: 100%;
   padding: 10px;
   margin: 10px 0;
   border-radius: 10px;
   border: 1px solid rgba(255, 165, 0, 0.5);
+  font-size: 14px;
   transition: border-color 0.3s ease;
 }
 
@@ -43,6 +72,7 @@
   border-color: orange;
 }
 
+/* Buttons */
 .floating-button {
   width: 100%;
   padding: 10px;
@@ -50,7 +80,7 @@
   border: none;
   background-color: orange;
   color: white;
-  font-size: 16px;
+  font-size: 14px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
@@ -64,13 +94,4 @@
 .outline-button:hover {
   background-color: orange;
   color: white;
-}
-
-.floating-button.cancel {
-  background-color: transparent;
-  border: 1px solid orange;
-}
-
-.floating-button.cancel:hover {
-  background-color: orange;
 }

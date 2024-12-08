@@ -1,9 +1,18 @@
+import React, { useState } from 'react';
 import CardGrid from '../Components/CardGrid';
+import NavBar from '../Components/NavBar';
 
-function Dashboard({ searchTerm }) {
+function Dashboard({ setIsAuthenticated }) {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+  };
+
   return (
     <div>
-      <CardGrid searchTerm={searchTerm} />
+      <NavBar onSearch={handleSearch} setIsAuthenticated={setIsAuthenticated} />
+      <CardGrid searchTerm={searchQuery} />
     </div>
   );
 }
