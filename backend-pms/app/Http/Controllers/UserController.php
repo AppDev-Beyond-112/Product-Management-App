@@ -25,7 +25,7 @@ class UserController extends Controller
         if ($user && Hash::check($password, $user->password)) {
             $token = bin2hex(random_bytes(32)); // Generate a session token
     
-            // Store the token in session or database
+            // Store the token and user_id in the session
             Session::put('user_token', $token);
             Session::put('user_id', $user->id);
     
@@ -33,7 +33,8 @@ class UserController extends Controller
                 'status' => 'success',
                 'message' => 'Login successful',
                 'role' => $user->role, // Return the role
-                'token' => $token
+                'token' => $token,
+                'user_id' => $user->id  // Return user_id
             ]);
         }
     
@@ -42,6 +43,7 @@ class UserController extends Controller
             'message' => 'Incorrect username or password'
         ], 401);
     }
+    
     
 
     public function isAuthenticated(Request $request)

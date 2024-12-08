@@ -60,10 +60,15 @@ const Login = ({ setIsAuthenticated }) => {
         },
         body: JSON.stringify({ username, password }),
       });
+
       const data = await response.json();
 
       if (data.status === "success") {
         localStorage.setItem("authToken", data.token);
+        localStorage.setItem("userId", data.user_id); // Store userId
+        localStorage.setItem("username", username); // Store username in localStorage
+        console.log('User ID:', localStorage.userId); // Check if userId is being retrieved correctly
+
         setIsAuthenticated(true);
 
         // Navigate based on role
@@ -154,6 +159,7 @@ const Login = ({ setIsAuthenticated }) => {
                     placeholder="Enter username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
+                    onFocus={() => handleFieldFocus("username")} // Call handleFieldFocus when field gains focus
                     required
                   />
                 </InputGroup>
@@ -165,6 +171,7 @@ const Login = ({ setIsAuthenticated }) => {
                   placeholder="Enter password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  onFocus={() => handleFieldFocus("password")} // Call handleFieldFocus when field gains focus
                   required
                 />
               </Form.Group>
@@ -188,6 +195,7 @@ const Login = ({ setIsAuthenticated }) => {
                     value={registrationData[field]}
                     onChange={(e) => setRegistrationData((prev) => ({ ...prev, [field]: e.target.value }))}
                     isInvalid={!!registrationErrors[field]}
+                    onFocus={() => handleFieldFocus(field)} // Call handleFieldFocus for registration fields as well
                   />
                   <Form.Control.Feedback type="invalid">{registrationErrors[field]}</Form.Control.Feedback>
                 </Form.Group>
@@ -200,6 +208,7 @@ const Login = ({ setIsAuthenticated }) => {
                   value={registrationData.password}
                   onChange={(e) => handlePasswordChange(e.target.value)}
                   isInvalid={!!registrationErrors.password}
+                  onFocus={() => handleFieldFocus("password")} // Call handleFieldFocus for password field
                 />
                 <div style={{ fontSize: "1.1em", color: passwordStrength.color, textAlign: "left", marginTop: "5px" }}>
                   {passwordStrength.label}
@@ -214,6 +223,7 @@ const Login = ({ setIsAuthenticated }) => {
                   value={registrationData.confirmPassword}
                   onChange={(e) => setRegistrationData((prev) => ({ ...prev, confirmPassword: e.target.value }))}
                   isInvalid={!!registrationErrors.confirmPassword}
+                  onFocus={() => handleFieldFocus("confirmPassword")} // Call handleFieldFocus for confirm password field
                 />
                 <Form.Control.Feedback type="invalid">{registrationErrors.confirmPassword}</Form.Control.Feedback>
               </Form.Group>

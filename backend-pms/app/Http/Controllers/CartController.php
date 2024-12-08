@@ -15,9 +15,10 @@ class CartController extends Controller
     public function addToCart(Request $request, $productId)
     {
         $request->validate([
-            'user_id' => 'required|exists:users,id',
+            'user_id' => 'required|integer|exists:users,id', // Make sure user_id is an integer
             'quantity' => 'required|integer|min:1',
         ]);
+        
 
         $userId = $request->input('user_id');
         $quantity = $request->input('quantity');
@@ -95,21 +96,20 @@ class CartController extends Controller
     /**
      * View the cart details based on user_id.
      */
-    public function viewCart(Request $request)
+    public function viewCart($userId)
     {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-        ]);
-
-        $userId = $request->input('user_id');
-
+        // Validate user_id exists
+        if (!\App\Models\User::where('id', $userId)->exists()) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+    
         // Find the user's cart
         $cart = Cart::where('user_id', $userId)->with('items.product')->first();
-
+    
         if (!$cart || $cart->items->isEmpty()) {
             return response()->json(['message' => 'Cart is empty'], 200);
         }
-
+    
         // Map cart items for response
         $cartDetails = $cart->items->map(function ($item) {
             return [
@@ -120,9 +120,10 @@ class CartController extends Controller
                 'total_price' => $item->quantity * $item->product->price,
             ];
         });
-
+    
         return response()->json(['cart' => $cartDetails], 200);
     }
+    
 
     /**
      * Checkout the cart based on user_id.

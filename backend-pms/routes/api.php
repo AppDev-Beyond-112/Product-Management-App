@@ -16,8 +16,7 @@ Route::post('register', [UserController::class, 'register'])->withoutMiddleware(
 Route::post('cart/checkout', [CartController::class, 'checkout']);
 Route::post('cart/{productId}', [CartController::class, 'addToCart']); // Add product to cart
 Route::delete('cart/{productId}', [CartController::class, 'removeFromCart']); // Remove product from cart
-Route::get('cart', [CartController::class, 'viewCart']); // View cart details
-
+Route::get('cart/{userId}', [CartController::class, 'viewCart']); // View cart details by user_id
 
 // Product Routes (No authentication required)
 Route::get('products', [ProductController::class, 'index'])->name('products.index');
