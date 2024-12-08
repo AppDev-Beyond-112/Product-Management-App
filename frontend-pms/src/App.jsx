@@ -13,7 +13,7 @@ function App() {
       <Routes>
         <Route
           path="/login"
-          element={!isAuthenticated ? <Login setIsAuthenticated={setIsAuthenticated} /> : <Navigate to="/storefront" />}
+          element={!isAuthenticated ? <Login setIsAuthenticated={setIsAuthenticated} /> : <Navigate to="/dashboard" />}
         />
         <Route
           path="/dashboard"
@@ -21,7 +21,7 @@ function App() {
         />
         <Route
           path="/storefront"
-          element={isAuthenticated ? <Storefront /> : <Navigate to="/login" />}
+          element={isAuthenticated ? <Storefront setIsAuthenticated={setIsAuthenticated} /> : <Navigate to="/login" />}
         />
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>

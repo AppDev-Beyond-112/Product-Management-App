@@ -4,11 +4,9 @@ import { Search } from "react-bootstrap-icons";
 import SFNavBar from "../Components/SFNavBar";
 import CartModal from "../Components/CartModal";
 import ProductModal from "../Components/ProductModal";
-import CheckoutModal from "../Components/CheckoutModal"; // Added checkout modal
-import { useNavigate } from "react-router-dom";
 import "../Custom CSS/Storefront.css";
 
-function Storefront() {
+function Storefront({ setIsAuthenticated }) {
   const [products, setProducts] = useState([]);
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,69 +15,70 @@ function Storefront() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [showCartModal, setShowCartModal] = useState(false);
   const [showProductModal, setShowProductModal] = useState(false);
-  const [showCheckoutModal, setShowCheckoutModal] = useState(false); // Added for checkout
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [username, setUsername] = useState(null); // Username state
-  const navigate = useNavigate();
+  const [username, setUsername] = useState(null);
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch("http://localhost:8000/api/products"); // Correct API route
-        if (!response.ok) throw new Error("Failed to fetch products.");
-        const data = await response.json();
-        setProducts(data);
-      } catch {
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    // Retrieve username from localStorage
+    fetchProducts();
+    fetchCartItems();
     const storedUsername = localStorage.getItem("username");
     if (storedUsername) setUsername(storedUsername);
-
-    fetchProducts();
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("userId");
-    localStorage.removeItem("username");
-    navigate("/login");
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch("http://localhost:8000/api/products");
+      if (!response.ok) throw new Error("Failed to fetch products.");
+      const data = await response.json();
+      setProducts(data);
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchCartItems = async () => {
+    const userId = localStorage.getItem("userId");
+    if (!userId) return;
+    try {
+      const response = await fetch(`http://localhost:8000/api/cart/${userId}`);
+      if (!response.ok) throw new Error("Failed to fetch cart items.");
+      const data = await response.json();
+      setCartItems(data.cart || []);
+    } catch {
+      setError(true);
+    }
   };
 
   const handleAddToCart = async (productId, quantity) => {
     try {
-      const userId = parseInt(localStorage.getItem("userId"), 10); 
-      
-      // Log values to the console
-      console.log('Adding to Cart:', {
-        userId: userId,
-        productId: productId,
-        quantity: quantity
-      });
-  
+      const userId = parseInt(localStorage.getItem("userId"), 10);
       const response = await fetch(`http://localhost:8000/api/cart/${productId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: userId, quantity }),
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Failed to add to cart.");
       }
-  
-      const successData = await response.json();
-      alert(successData.message);
+
+      fetchCartItems();
     } catch (error) {
-      alert(error.message);
+      console.error("Error adding to cart:", error.message);
     }
   };
-  
+
+  const handleCheckoutComplete = (updatedCart) => {
+    setCartItems(updatedCart); // Clear the cart
+  };
+
+  const handleStockUpdate = () => {
+    fetchProducts(); // Refresh the product list after stock update
+  };
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -88,18 +87,16 @@ function Storefront() {
   });
 
   const uniqueCategories = [...new Set(products.map((product) => product.category))];
+  const cartCount = cartItems.length;
 
   return (
     <div className="storefront">
-      {/* Navigation Bar */}
       <SFNavBar
-        cartCount={cartItems.length}
+        cartCount={cartCount}
         onCartClick={() => setShowCartModal(true)}
-        username={username} // Pass username to SFNavBar
-        onLogout={handleLogout}
+        username={username}
+        setIsAuthenticated={setIsAuthenticated}
       />
-
-      {/* Store Logo */}
       <div className="text-center mb-4">
         <img
           src="/sister-store-logo-2.svg"
@@ -107,8 +104,6 @@ function Storefront() {
           style={{ width: "150px", marginTop: "20px" }}
         />
       </div>
-
-      {/* Search and Filter Section */}
       <div className="container-fluid mt-4">
         <div className="d-flex justify-content-center mb-4">
           <InputGroup className="w-50">
@@ -135,8 +130,6 @@ function Storefront() {
             ))}
           </Form.Select>
         </div>
-
-        {/* Loading and Error States */}
         {loading && (
           <div className="text-center mt-4">
             <Spinner animation="border" role="status" />
@@ -144,11 +137,9 @@ function Storefront() {
         )}
         {error && (
           <div className="text-center mt-4">
-            <h5>Sister Store is not currently selling anything~</h5>
+            <h5>Something went wrong. Please try again later.</h5>
           </div>
         )}
-
-        {/* Product Grid */}
         {!loading && !error && filteredProducts.length > 0 && (
           <Row>
             {filteredProducts.map((product) => (
@@ -158,7 +149,7 @@ function Storefront() {
                   style={{ cursor: "pointer" }}
                   onClick={() => {
                     setSelectedProduct(product);
-                    setShowProductModal(true); // Open the modal on click
+                    setShowProductModal(true);
                   }}
                 >
                   <img
@@ -178,7 +169,7 @@ function Storefront() {
                     <p className="card-text">
                       <strong>₱{product.price}</strong>
                     </p>
-                    <Badge pill bg={product.stock > 0 ? "success" : "danger"}>
+                    <Badge bg={product.stock > 0 ? "success" : "danger"}>
                       {product.stock > 0 ? `In Stock: ${product.stock}` : "Out of Stock"}
                     </Badge>
                   </div>
@@ -188,30 +179,21 @@ function Storefront() {
           </Row>
         )}
       </div>
-
-      {/* Modals */}
       <CartModal
         show={showCartModal}
         onHide={() => setShowCartModal(false)}
-        cartItems={cartItems}
-        updateCartItem={(id, quantity) => console.log(id, quantity)}
-        removeFromCart={(id) => console.log(id)}
-        onCheckoutClick={() => setShowCheckoutModal(true)}
+        onCartUpdate={(updatedCartCount) => setCartItems((prev) => prev.slice(0, updatedCartCount))}
+        onCheckoutComplete={handleCheckoutComplete}
+        onStockUpdate={handleStockUpdate}
       />
       {selectedProduct && (
         <ProductModal
           show={showProductModal}
           onHide={() => setShowProductModal(false)}
           product={selectedProduct}
-          addToCart={(quantity) => handleAddToCart(selectedProduct.id, quantity)} // Use API for adding to cart
+          addToCart={(quantity) => handleAddToCart(selectedProduct.id, quantity)}
         />
       )}
-      <CheckoutModal
-        show={showCheckoutModal}
-        onHide={() => setShowCheckoutModal(false)}
-        cartItems={cartItems}
-        onConfirmCheckout={(method) => console.log(method)}
-      />
     </div>
   );
 }
